@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Aproveitamentos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f6;
+    color: #333;
+    min-height: 100vh;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* Cabeçalho */
+  .header {
+    background: linear-gradient(135deg, #1a3a6e, #2a5298);
+    color: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .header h1 { font-size: 1.3rem; font-weight: 700; }
+  .header p  { font-size: 0.88rem; opacity: 0.85; margin-top: 4px; }
+
+  /* Seções */
+  .section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  }
+  .section h2 {
+    font-size: 1rem;
+    color: #1a3a6e;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Inputs */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  label { font-size: 0.82rem; color: #555; display: block; margin-bottom: 4px; }
+  input, select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    font-size: 0.9rem;
+    background: #fafafa;
+    transition: border 0.2s;
+  }
+  input:focus, select:focus { outline: none; border-color: #2a5298; background: white; }
+
+  /* Busca */
+  .search-wrap { position: relative; }
+  #busca-input {
+    width: 100%; padding: 10px 14px;
+    border: 2px solid #ddd; border-radius: 8px;
+    font-size: 0.95rem;
+  }
+  #busca-input:focus { border-color: #2a5298; }
+  .dropdown {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: white; border: 1px solid #ddd;
+    border-radius: 8px; margin-top: 4px;
+    max-height: 220px; overflow-y: auto;
+    z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    display: none;
+  }
+  .dropdown.open { display: block; }
+  .dropdown-item {
+    padding: 9px 14px; cursor: pointer;
+    font-size: 0.88rem; border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+  }
+  .dropdown-item:hover { background: #eef2ff; }
+  .dropdown-item:last-child { border-bottom: none; }
+
+  /* Equivalentes */
+  .eq-section { margin-top: 16px; }
+  .eq-titulo { font-size: 0.82rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .eq-card {
+    border: 1.5px solid #c8d8f0;
+    border-radius: 8px; padding: 10px 14px;
+    margin-bottom: 8px; cursor: pointer;
+    transition: all 0.15s; background: #f7f9ff;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .eq-card:hover { background: #e8eeff; border-color: #2a5298; }
+  .eq-card.adicionado { background: #d4edda; border-color: #28a745; cursor: default; }
+  .eq-card.negado { background: #fff0f0; border-color: #e74c3c; cursor: not-allowed; }
+  .eq-card-info { flex: 1; }
+  .eq-inst { font-size: 0.78rem; font-weight: 700; color: #2a5298; }
+  .eq-nome { font-size: 0.85rem; color: #333; margin-top: 2px; }
+  .badge {
+    font-size: 0.72rem; font-weight: 700; padding: 2px 8px;
+    border-radius: 12px; white-space: nowrap; margin-left: 10px;
+  }
+  .badge-aceito { background: #d4edda; color: #155724; }
+  .badge-negado { background: #f8d7da; color: #721c24; }
+  .badge-ok     { background: #d4edda; color: #155724; }
+  .aviso {
+    background: #fff3cd; border-left: 4px solid #ffc107;
+    border-radius: 6px; padding: 10px 14px;
+    font-size: 0.88rem; color: #856404; margin-top: 8px;
+  }
+  .aviso-negado {
+    background: #f8d7da; border-left: 4px solid #e74c3c;
+    border-radius: 6px; padding: 10px 14px;
+    font-size: 0.88rem; color: #721c24; margin-top: 8px;
+  }
+
+  /* Botão novo pedido */
+  .btn-novo {
+    margin-top: 14px; width: 100%;
+    padding: 10px; border: 2px dashed #2a5298;
+    background: white; color: #2a5298;
+    border-radius: 8px; font-size: 0.9rem;
+    cursor: pointer; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .btn-novo:hover { background: #eef2ff; }
+
+  /* Pedido */
+  .pedido-vazio { color: #aaa; font-size: 0.88rem; font-style: italic; }
+  .pedido-item {
+    background: #f0f4ff;
+    border-left: 4px solid #2a5298;
+    border-radius: 6px; padding: 10px 14px;
+    margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .pedido-item-info { flex: 1; }
+  .pedido-comp { font-size: 0.88rem; font-weight: 700; color: #1a3a6e; }
+  .pedido-sub  { font-size: 0.8rem; color: #555; margin-top: 2px; }
+  .btn-rem {
+    background: none; border: none; cursor: pointer;
+    color: #c0392b; font-size: 1.1rem; padding: 0 4px;
+    line-height: 1;
+  }
+  .btn-rem:hover { color: #e74c3c; }
+
+  /* Botão PDF */
+  .btn-pdf {
+    width: 100%; padding: 13px;
+    background: linear-gradient(135deg, #1a3a6e, #2a5298);
+    color: white; border: none; border-radius: 8px;
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer; margin-top: 16px;
+    transition: opacity 0.2s;
+  }
+  .btn-pdf:hover { opacity: 0.9; }
+  .btn-pdf:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .divider { border: none; border-top: 1px solid #eee; margin: 16px 0; }
+
+  /* Componente selecionada */
+  .comp-selecionada {
+    background: #eef2ff; border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 14px;
+    font-size: 0.9rem; color: #1a3a6e; font-weight: 600;
+  }
+
+  @media (max-width: 500px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Cabeçalho -->
+  <div class="header">
+    <h1>🎓 Simulador de Aproveitamento de Estudos</h1>
+    <p>Curso de Engenharia de Produção – UFRN</p>
+  </div>
+
+  <!-- Dados do aluno -->
+  <div class="section">
+    <h2>📋 Seus dados</h2>
+    <div class="grid2">
+      <div>
+        <label>Nome completo</label>
+        <input type="text" id="nome" placeholder="Seu nome completo">
+      </div>
+      <div>
+        <label>Matrícula</label>
+        <input type="text" id="matricula" placeholder="Ex: 20230001234">
+      </div>
+      <div>
+        <label>Turno</label>
+        <select id="turno">
+          <option value="Vespertino">Vespertino</option>
+          <option value="Noturno">Noturno</option>
+        </select>
+      </div>
+      <div>
+        <label>Instituição de origem</label>
+        <input type="text" id="inst_origem" placeholder="Ex: IFRN, UFERSA...">
+      </div>
+    </div>
+  </div>
+
+  <!-- Busca -->
+  <div class="section">
+    <h2>🔍 Buscar componente pretendida</h2>
+    <div class="search-wrap">
+      <input type="text" id="busca-input" placeholder="Digite o nome ou código da componente..." autocomplete="off">
+      <div class="dropdown" id="dropdown"></div>
+    </div>
+    <div id="resultado-busca"></div>
+  </div>
+
+  <!-- Pedido -->
+  <div class="section">
+    <h2>📄 Seu pedido</h2>
+    <div id="lista-pedido"><p class="pedido-vazio">Nenhuma componente adicionada ainda.</p></div>
+    <button class="btn-pdf" id="btn-pdf" onclick="gerarPDF()">📥 Gerar PDF do pedido</button>
+  </div>
+
+</div>
+
+<script>
+// ── Dados da planilha ──────────────────────────────────────────────────────
+const DADOS = [
+  { comp: "FIS0801 - FÍSICA GERAL I - 60h",         nv: 1, nn: 1, inst: "UFRN-ECT",      cursado: "",                                              resultado: "ACEITO" },
+  { comp: "FIS0801 - FÍSICA GERAL I - 60h",         nv: 1, nn: 1, inst: "IFRN-superior", cursado: "ENG. 0007 - Mecânica Clássica (90h)",            resultado: "ACEITO" },
+  { comp: "FIS0801 - FÍSICA GERAL I - 60h",         nv: 1, nn: 1, inst: "IFRN-médio",    cursado: "TIN. 0186 - Física I (120h)",                   resultado: "ACEITO" },
+  { comp: "FIS0801 - FÍSICA GERAL I - 60h",         nv: 1, nn: 1, inst: "UFERSA",        cursado: "MME1825 - MECÂNICA CLÁSSICA",                   resultado: "ACEITO" },
+  { comp: "FIS0821 - LABORATÓRIO DE FÍSICA I - 30h",nv: 1, nn: 1, inst: "",              cursado: "",                                              resultado: "" },
+  { comp: "FIS0821 - LABORATÓRIO DE FÍSICA I - 30h",nv: 1, nn: null,inst:"UFERSA",       cursado: "MME1831 - LABORATÓRIO DE MECÂNICA CLÁSSICA",    resultado: "ACEITO" },
+  { comp: "MAT0411 - CÁLCULO 1 - E - 90h",          nv: 1, nn: 1, inst: "",              cursado: "",                                              resultado: "" },
+  { comp: "MAT0411 - CÁLCULO 1 - E - 90h",          nv: 1, nn: 1, inst: "IFRN-superior", cursado: "ENG. 0003 - Cálculo para Engenharia I (90h)",  resultado: "ACEITO" },
+  { comp: "MAT0411 - CÁLCULO 1 - E - 90h",          nv: 1, nn: null,inst:"UFERSA",       cursado: "MME1814 - CÁLCULO I",                          resultado: "ACEITO" },
+  { comp: "PRO3008 - VISÃO SISTÊMICA E CTS - 60h",  nv: 1, nn: 1, inst: "",              cursado: "",                                              resultado: "" },
+  { comp: "PRO3101 - PROJETO DE INTRODUÇÃO À ENGENHARIA DE PRODUÇÃO - 60h", nv: 1, nn: 1, inst: "", cursado: "", resultado: "NEGADO" },
+  { comp: "PRO3101 - PROJETO DE INTRODUÇÃO À ENGENHARIA DE PRODUÇÃO - 60h", nv: 1, nn: null, inst: "UFERSA", cursado: "MEA2104 - FUNDAMENTOS DE ENGENHARIA DE PRODUÇÃO", resultado: "ACEITO" },
+  { comp: "FIS0802 - FÍSICA GERAL II - 60h",         nv: 3, nn: null,inst:"IFRN-médio",  cursado: "TIN. 0186 - Física I (120h)",                   resultado: "ACEITO" },
+  { comp: "QUI0311 - QUIMICA BASICA - 60h",          nv: 1, nn: null,inst:"IFRN-superior",cursado:"ENG. 0010 - Química Geral (60h)",               resultado: "ACEITO" },
+  { comp: "QUI0311 - QUIMICA BASICA - 60h",          nv: 1, nn: null,inst:"UFERSA",      cursado: "MET1832 - QUÍMICA GERAL",                       resultado: "ACEITO" },
+  { comp: "ARQ0002 - DESENHO TECNICO - 60h",         nv: null,nn: null,inst:"IFRN-médio",cursado: "TSUB.0732 - Desenho Técnico (60h)",             resultado: "NEGADO" },
+  { comp: "PRO3503 - ERGONOMIA - 60h",               nv: null,nn: null,inst:"IFRN-médio",cursado: "TSUB.0739 - Ergonomia(60H)",                    resultado: "ACEITO" },
+  { comp: "PRO3504 - HIGIENE E SEGURANÇA DO TRABALHO - 60h", nv: null, nn: null, inst: "IFRN-médio", cursado: "TSUB.0740 - Higiene Ocupacional(60H) / TSUB.0743 - Segurança do Trabalho(60H)", resultado: "ACEITO" },
+  { comp: "PRO3504 - HIGIENE E SEGURANÇA DO TRABALHO - 60h", nv: null, nn: null, inst: "IFRN-médio", cursado: "TIN.0516 - Segurança do Trabalho(45H)", resultado: "NEGADO" },
+  { comp: "MEC2617 - INTRODUÇÃO À DINÂMICA - 30h",   nv: null,nn: null,inst:"IFRN-médio",cursado:"TIN. 0186 - Física I (120h)",                    resultado: "NEGADO" },
+  { comp: "PRO3302 - MATEMÁTICA FINANCEIRA - 60h",   nv: null,nn: null,inst:"IFRN-médio",cursado:"TIN.0064 - Matemática Financeira (90H)",          resultado: "ACEITO" },
+];
+
+const componentes = [...new Set(DADOS.map(d => d.comp))];
+let pedido = [];
+let compSelecionada = null;
+
+// ── Busca com dropdown ─────────────────────────────────────────────────────
+const buscaInput = document.getElementById('busca-input');
+const dropdown   = document.getElementById('dropdown');
+
+buscaInput.addEventListener('input', () => {
+  const q = buscaInput.value.toLowerCase().trim();
+  dropdown.innerHTML = '';
+  if (!q) { dropdown.classList.remove('open'); return; }
+
+  const filtradas = componentes.filter(c => c.toLowerCase().includes(q));
+  if (!filtradas.length) { dropdown.classList.remove('open'); return; }
+
+  filtradas.forEach(c => {
+    const item = document.createElement('div');
+    item.className = 'dropdown-item';
+    item.textContent = c;
+    item.onclick = () => selecionarComp(c);
+    dropdown.appendChild(item);
+  });
+  dropdown.classList.add('open');
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) dropdown.classList.remove('open');
+});
+
+function selecionarComp(comp) {
+  compSelecionada = comp;
+  buscaInput.value = comp;
+  dropdown.classList.remove('open');
+  renderResultado();
+}
+
+// ── Renderiza equivalentes ─────────────────────────────────────────────────
+function renderResultado() {
+  const el = document.getElementById('resultado-busca');
+  if (!compSelecionada) { el.innerHTML = ''; return; }
+
+  const linhas = DADOS.filter(d => d.comp === compSelecionada);
+  const comInst = linhas.filter(d => d.inst);
+  const semInst = linhas.filter(d => !d.inst);
+
+  let html = `<hr class="divider"><div class="comp-selecionada">📚 ${compSelecionada}</div>`;
+
+  // Sem instituição registrada
+  const bloqueadaGeral = semInst.some(d => d.resultado === 'NEGADO' && !d.cursado);
+  if (bloqueadaGeral) {
+    html += `<div class="aviso-negado">⛔ Esta componente teve pedidos anteriores <b>negados</b> e não pode ser incluída no pedido de aproveitamento.</div>`;
+  }
+
+  // Com instituições
+  const aceitas = comInst.filter(d => d.resultado === 'ACEITO');
+  const negadas  = comInst.filter(d => d.resultado === 'NEGADO');
+
+  if (aceitas.length) {
+    html += `<div class="eq-section"><div class="eq-titulo">✅ Equivalentes aprovadas — clique na que você cursou</div>`;
+    aceitas.forEach((d, i) => {
+      const jaAdicionado = pedido.some(p => p.comp === d.comp && p.cursado === d.cursado && p.inst === d.inst);
+      const cls = jaAdicionado ? 'eq-card adicionado' : 'eq-card';
+      const onclick = jaAdicionado ? '' : `onclick="adicionarItem('${esc(d.comp)}','${esc(d.inst)}','${esc(d.cursado)}')"`;
+      html += `
+        <div class="${cls}" ${onclick}>
+          <div class="eq-card-info">
+            <div class="eq-inst">🏛️ ${d.inst}</div>
+            <div class="eq-nome">${d.cursado || '(componente idêntica)'}</div>
+          </div>
+          ${jaAdicionado
+            ? '<span class="badge badge-ok">✔ Adicionado</span>'
+            : '<span class="badge badge-aceito">ACEITO</span>'}
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (negadas.length) {
+    html += `<div class="eq-section"><div class="eq-titulo">❌ Com pedidos anteriores negados</div>`;
+    negadas.forEach(d => {
+      html += `
+        <div class="eq-card negado">
+          <div class="eq-card-info">
+            <div class="eq-inst">🏛️ ${d.inst}</div>
+            <div class="eq-nome">${d.cursado}</div>
+          </div>
+          <span class="badge badge-negado">NEGADO</span>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (!comInst.length && !bloqueadaGeral) {
+    html += `<div class="aviso">ℹ️ Não há equivalentes homologadas para esta componente ainda.</div>`;
+  }
+
+  html += `
+    <button class="btn-novo" onclick="novoPedido()">
+      📝 Minha instituição não está na lista — Novo pedido de apreciação
+    </button>`;
+
+  el.innerHTML = html;
+}
+
+function esc(s) { return (s||'').replace(/'/g, "\\'"); }
+
+function adicionarItem(comp, inst, cursado) {
+  if (pedido.some(p => p.comp === comp && p.cursado === cursado && p.inst === inst)) return;
+  pedido.push({ comp, inst, cursado });
+  renderPedido();
+  renderResultado();
+}
+
+function removerItem(idx) {
+  pedido.splice(idx, 1);
+  renderPedido();
+  renderResultado();
+}
+
+function novoPedido() {
+  document.getElementById('resultado-busca').innerHTML +=
+    `<div class="aviso" style="margin-top:10px;">📌 Para abrir um novo pedido de apreciação, procure a Coordenação do Curso com seu histórico escolar e a ementa da disciplina cursada.</div>`;
+}
+
+// ── Renderiza pedido ───────────────────────────────────────────────────────
+function renderPedido() {
+  const el = document.getElementById('lista-pedido');
+  if (!pedido.length) {
+    el.innerHTML = '<p class="pedido-vazio">Nenhuma componente adicionada ainda.</p>';
+    return;
+  }
+  el.innerHTML = pedido.map((p, i) => `
+    <div class="pedido-item">
+      <div class="pedido-item-info">
+        <div class="pedido-comp">${p.comp}</div>
+        <div class="pedido-sub">🏛️ ${p.inst} — ${p.cursado || 'Componente idêntica'}</div>
+      </div>
+      <button class="btn-rem" onclick="removerItem(${i})" title="Remover">🗑️</button>
+    </div>
+  `).join('');
+}
+
+// ── Geração de PDF ─────────────────────────────────────────────────────────
+function gerarPDF() {
+  const nome       = document.getElementById('nome').value.trim();
+  const matricula  = document.getElementById('matricula').value.trim();
+  const turno      = document.getElementById('turno').value;
+  const instOrigem = document.getElementById('inst_origem').value.trim();
+
+  if (!nome || !matricula) {
+    alert('Preencha seu nome e matrícula antes de gerar o PDF.');
+    return;
+  }
+  if (!pedido.length) {
+    alert('Adicione ao menos uma componente ao pedido.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const W = 210, ml = 20, mr = 20, cw = W - ml - mr;
+  let y = 20;
+
+  // Cabeçalho
+  doc.setFillColor(26, 58, 110);
+  doc.rect(ml, y, cw, 14, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.text('PEDIDO DE APROVEITAMENTO DE ESTUDOS', W / 2, y + 9, { align: 'center' });
+  y += 18;
+
+  doc.setTextColor(80, 80, 80);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text('Curso de Engenharia de Produção – UFRN', W / 2, y, { align: 'center' });
+  y += 8;
+
+  doc.setDrawColor(26, 58, 110);
+  doc.setLineWidth(0.5);
+  doc.line(ml, y, W - mr, y);
+  y += 8;
+
+  // Dados do aluno
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(26, 58, 110);
+  doc.text('Dados do Aluno', ml, y); y += 6;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(9.5);
+  doc.text(`Nome: ${nome}`, ml, y);
+  doc.text(`Matrícula: ${matricula}`, W / 2, y); y += 6;
+  doc.text(`Turno: ${turno}`, ml, y);
+  doc.text(`Instituição de origem: ${instOrigem}`, W / 2, y); y += 6;
+  doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, ml, y); y += 8;
+
+  doc.line(ml, y, W - mr, y); y += 8;
+
+  // Tabela
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(26, 58, 110);
+  doc.text('Componentes Solicitadas', ml, y); y += 6;
+
+  // Cabeçalho tabela
+  const cols = [90, 45, 55];
+  doc.setFillColor(26, 58, 110);
+  doc.rect(ml, y, cw, 8, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8.5);
+  doc.text('Componente Pretendida (UFRN)', ml + 2, y + 5.5);
+  doc.text('Instituição de Origem', ml + cols[0] + 2, y + 5.5);
+  doc.text('Componente Cursada', ml + cols[0] + cols[1] + 2, y + 5.5);
+  y += 8;
+
+  // Linhas
+  doc.setTextColor(0, 0, 0);
+  pedido.forEach((p, i) => {
+    const fill = i % 2 === 0;
+    if (fill) { doc.setFillColor(240, 244, 255); doc.rect(ml, y, cw, 9, 'F'); }
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    const compLines = doc.splitTextToSize(p.comp, cols[0] - 4);
+    const cursLines = doc.splitTextToSize(p.cursado || 'Componente idêntica', cols[2] - 4);
+    const h = Math.max(compLines.length, cursLines.length) * 4.5 + 3;
+
+    if (fill) { doc.setFillColor(240, 244, 255); doc.rect(ml, y, cw, h, 'F'); }
+
+    doc.setDrawColor(200, 210, 230);
+    doc.setLineWidth(0.3);
+    doc.rect(ml, y, cols[0], h);
+    doc.rect(ml + cols[0], y, cols[1], h);
+    doc.rect(ml + cols[0] + cols[1], y, cols[2], h);
+
+    doc.text(compLines, ml + 2, y + 4.5);
+    doc.text(p.inst, ml + cols[0] + 2, y + 4.5);
+    doc.text(cursLines, ml + cols[0] + cols[1] + 2, y + 4.5);
+    y += h;
+  });
+
+  y += 12;
+  doc.setLineWidth(0.5);
+  doc.setDrawColor(26, 58, 110);
+  doc.line(ml, y, W - mr, y);
+  y += 10;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+  doc.text('Assinatura do Aluno: ___________________________________', ml, y);
+  y += 16;
+
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(7.5);
+  doc.setTextColor(150, 150, 150);
+  doc.text('Documento gerado pelo Simulador de Aproveitamentos – Coordenação de Engenharia de Produção / UFRN', W / 2, y, { align: 'center' });
+
+  doc.save(`aproveitamento_${matricula}.pdf`);
+}
+</script>
+</body>
+</html>
