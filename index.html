@@ -2,518 +2,438 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulador de Aproveitamentos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Simulador de Aproveitamentos – Eng. de Produção UFRN</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f0f2f6;
-    color: #333;
-    min-height: 100vh;
-  }
-  .container { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
-
-  /* Cabeçalho */
-  .header {
-    background: linear-gradient(135deg, #1a3a6e, #2a5298);
-    color: white;
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 20px;
-  }
-  .header h1 { font-size: 1.3rem; font-weight: 700; }
-  .header p  { font-size: 0.88rem; opacity: 0.85; margin-top: 4px; }
-
-  /* Seções */
-  .section {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
-  }
-  .section h2 {
-    font-size: 1rem;
-    color: #1a3a6e;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* Inputs */
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  label { font-size: 0.82rem; color: #555; display: block; margin-bottom: 4px; }
-  input, select {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 7px;
-    font-size: 0.9rem;
-    background: #fafafa;
-    transition: border 0.2s;
-  }
-  input:focus, select:focus { outline: none; border-color: #2a5298; background: white; }
-
-  /* Busca */
-  .search-wrap { position: relative; }
-  #busca-input {
-    width: 100%; padding: 10px 14px;
-    border: 2px solid #ddd; border-radius: 8px;
-    font-size: 0.95rem;
-  }
-  #busca-input:focus { border-color: #2a5298; }
-  .dropdown {
-    position: absolute; top: 100%; left: 0; right: 0;
-    background: white; border: 1px solid #ddd;
-    border-radius: 8px; margin-top: 4px;
-    max-height: 220px; overflow-y: auto;
-    z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-    display: none;
-  }
-  .dropdown.open { display: block; }
-  .dropdown-item {
-    padding: 9px 14px; cursor: pointer;
-    font-size: 0.88rem; border-bottom: 1px solid #f0f0f0;
-    transition: background 0.15s;
-  }
-  .dropdown-item:hover { background: #eef2ff; }
-  .dropdown-item:last-child { border-bottom: none; }
-
-  /* Equivalentes */
-  .eq-section { margin-top: 16px; }
-  .eq-titulo { font-size: 0.82rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-  .eq-card {
-    border: 1.5px solid #c8d8f0;
-    border-radius: 8px; padding: 10px 14px;
-    margin-bottom: 8px; cursor: pointer;
-    transition: all 0.15s; background: #f7f9ff;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .eq-card:hover { background: #e8eeff; border-color: #2a5298; }
-  .eq-card.adicionado { background: #d4edda; border-color: #28a745; cursor: default; }
-  .eq-card.negado { background: #fff0f0; border-color: #e74c3c; cursor: not-allowed; }
-  .eq-card-info { flex: 1; }
-  .eq-inst { font-size: 0.78rem; font-weight: 700; color: #2a5298; }
-  .eq-nome { font-size: 0.85rem; color: #333; margin-top: 2px; }
-  .badge {
-    font-size: 0.72rem; font-weight: 700; padding: 2px 8px;
-    border-radius: 12px; white-space: nowrap; margin-left: 10px;
-  }
-  .badge-aceito { background: #d4edda; color: #155724; }
-  .badge-negado { background: #f8d7da; color: #721c24; }
-  .badge-ok     { background: #d4edda; color: #155724; }
-  .aviso {
-    background: #fff3cd; border-left: 4px solid #ffc107;
-    border-radius: 6px; padding: 10px 14px;
-    font-size: 0.88rem; color: #856404; margin-top: 8px;
-  }
-  .aviso-negado {
-    background: #f8d7da; border-left: 4px solid #e74c3c;
-    border-radius: 6px; padding: 10px 14px;
-    font-size: 0.88rem; color: #721c24; margin-top: 8px;
-  }
-
-  /* Botão novo pedido */
-  .btn-novo {
-    margin-top: 14px; width: 100%;
-    padding: 10px; border: 2px dashed #2a5298;
-    background: white; color: #2a5298;
-    border-radius: 8px; font-size: 0.9rem;
-    cursor: pointer; font-weight: 600;
-    transition: all 0.15s;
-  }
-  .btn-novo:hover { background: #eef2ff; }
-
-  /* Pedido */
-  .pedido-vazio { color: #aaa; font-size: 0.88rem; font-style: italic; }
-  .pedido-item {
-    background: #f0f4ff;
-    border-left: 4px solid #2a5298;
-    border-radius: 6px; padding: 10px 14px;
-    margin-bottom: 8px;
-    display: flex; justify-content: space-between; align-items: flex-start;
-  }
-  .pedido-item-info { flex: 1; }
-  .pedido-comp { font-size: 0.88rem; font-weight: 700; color: #1a3a6e; }
-  .pedido-sub  { font-size: 0.8rem; color: #555; margin-top: 2px; }
-  .btn-rem {
-    background: none; border: none; cursor: pointer;
-    color: #c0392b; font-size: 1.1rem; padding: 0 4px;
-    line-height: 1;
-  }
-  .btn-rem:hover { color: #e74c3c; }
-
-  /* Botão PDF */
-  .btn-pdf {
-    width: 100%; padding: 13px;
-    background: linear-gradient(135deg, #1a3a6e, #2a5298);
-    color: white; border: none; border-radius: 8px;
-    font-size: 1rem; font-weight: 700;
-    cursor: pointer; margin-top: 16px;
-    transition: opacity 0.2s;
-  }
-  .btn-pdf:hover { opacity: 0.9; }
-  .btn-pdf:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .divider { border: none; border-top: 1px solid #eee; margin: 16px 0; }
-
-  /* Componente selecionada */
-  .comp-selecionada {
-    background: #eef2ff; border-radius: 8px;
-    padding: 10px 14px; margin-bottom: 14px;
-    font-size: 0.9rem; color: #1a3a6e; font-weight: 600;
-  }
-
-  @media (max-width: 500px) {
-    .grid2 { grid-template-columns: 1fr; }
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f6;color:#222;min-height:100vh}
+.container{max-width:800px;margin:0 auto;padding:20px 14px 60px}
+.header{background:linear-gradient(135deg,#1a3a6e,#2a5298);color:#fff;border-radius:12px;padding:18px 22px;margin-bottom:18px}
+.header h1{font-size:1.2rem;font-weight:700}
+.header p{font-size:.85rem;opacity:.85;margin-top:3px}
+.section{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.section h2{font-size:.95rem;color:#1a3a6e;margin-bottom:12px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:.8rem;color:#555;display:block;margin-bottom:3px}
+input,select{width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:7px;font-size:.88rem;background:#fafafa;transition:border .15s}
+input:focus,select:focus{outline:none;border-color:#2a5298;background:#fff}
+.search-wrap{position:relative}
+#busca{width:100%;padding:10px 14px;border:2px solid #ddd;border-radius:8px;font-size:.95rem}
+#busca:focus{border-color:#2a5298;outline:none}
+.dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:8px;margin-top:3px;max-height:240px;overflow-y:auto;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.12);display:none}
+.dropdown.open{display:block}
+.dd-item{padding:9px 14px;cursor:pointer;font-size:.87rem;border-bottom:1px solid #f0f0f0}
+.dd-item:hover{background:#eef2ff}
+.filtro-label{font-size:.82rem;color:#555;margin-bottom:6px;display:block}
+.inst-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;border:1.5px solid #c8d8f0;background:#f7f9ff;font-size:.8rem;cursor:pointer;transition:all .15s;user-select:none;color:#444}
+.chip:hover{border-color:#2a5298;background:#eef2ff}
+.chip.ativo{background:#2a5298;border-color:#2a5298;color:#fff;font-weight:600}
+.btn-limpar-filtro{font-size:.74rem;color:#c0392b;cursor:pointer;background:none;border:none;padding:0;margin-top:4px;display:none}
+.btn-limpar-filtro.visible{display:inline}
+.comp-title{background:#eef2ff;border-radius:8px;padding:9px 13px;margin-bottom:12px;font-size:.9rem;color:#1a3a6e;font-weight:600}
+.inst-bloco{margin-bottom:14px}
+.inst-nome{font-size:.78rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.opcao-label{font-size:.75rem;color:#888;margin:6px 0 3px;font-style:italic}
+.opcao-card{border:1.5px solid #c8d8f0;border-radius:8px;padding:10px 13px;margin-bottom:6px;cursor:pointer;background:#f7f9ff;transition:all .15s;display:flex;align-items:center;gap:10px}
+.opcao-card:hover{background:#e8eeff;border-color:#2a5298}
+.opcao-card.adicionado{background:#d4edda;border-color:#28a745;cursor:default}
+.conj-wrap{border:1.5px solid #c8d8f0;border-radius:8px;margin-bottom:6px;overflow:hidden}
+.conj-header{background:#f0f4ff;padding:7px 13px;font-size:.78rem;font-weight:700;color:#2a5298;display:flex;align-items:center;gap:6px}
+.conj-header.adicionado{background:#d4edda;color:#155724}
+.conj-itens{padding:6px 10px}
+.conj-item{display:flex;align-items:center;gap:8px;padding:5px 3px;font-size:.85rem;border-bottom:1px solid #eee;cursor:pointer}
+.conj-item:last-child{border-bottom:none}
+.conj-item:hover{color:#2a5298}
+.conj-item.selecionado{color:#155724;font-weight:600}
+.chk{width:16px;height:16px;border:2px solid #aaa;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px}
+.chk.ok{background:#28a745;border-color:#28a745;color:#fff}
+.badge{font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:12px;white-space:nowrap;margin-left:auto}
+.badge-ok{background:#d4edda;color:#155724}
+.aviso{background:#fff3cd;border-left:4px solid #ffc107;border-radius:6px;padding:9px 13px;font-size:.87rem;color:#856404;margin-top:8px}
+.aviso-info{background:#e8f4fe;border-left:4px solid #2a5298;border-radius:6px;padding:9px 13px;font-size:.87rem;color:#1a3a6e;margin-top:8px}
+.btn-novo{margin-top:12px;width:100%;padding:9px;border:2px dashed #2a5298;background:#fff;color:#2a5298;border-radius:8px;font-size:.88rem;cursor:pointer;font-weight:600;transition:background .15s}
+.btn-novo:hover{background:#eef2ff}
+.pedido-vazio{color:#aaa;font-size:.88rem;font-style:italic}
+.pedido-item{background:#f0f4ff;border-left:4px solid #2a5298;border-radius:6px;padding:9px 13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:flex-start}
+.pedido-comp{font-size:.87rem;font-weight:700;color:#1a3a6e}
+.pedido-sub{font-size:.78rem;color:#555;margin-top:2px;line-height:1.4}
+.btn-rem{background:none;border:none;cursor:pointer;color:#c0392b;font-size:1.1rem;padding:0 3px;line-height:1;flex-shrink:0}
+.btn-pdf{width:100%;padding:12px;background:linear-gradient(135deg,#1a3a6e,#2a5298);color:#fff;border:none;border-radius:8px;font-size:.98rem;font-weight:700;cursor:pointer;margin-top:14px;transition:opacity .15s}
+.btn-pdf:hover{opacity:.9}
+.divider{border:none;border-top:1px solid #eee;margin:12px 0}
+@media(max-width:500px){.grid2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="container">
-
-  <!-- Cabeçalho -->
   <div class="header">
     <h1>🎓 Simulador de Aproveitamento de Estudos</h1>
-    <p>Curso de Engenharia de Produção – UFRN</p>
+    <p>Curso de Engenharia de Produção – UFRN &nbsp;|&nbsp; Coordenação do Curso</p>
   </div>
 
-  <!-- Dados do aluno -->
   <div class="section">
     <h2>📋 Seus dados</h2>
     <div class="grid2">
-      <div>
-        <label>Nome completo</label>
-        <input type="text" id="nome" placeholder="Seu nome completo">
+      <div><label>Nome completo</label><input id="nome" type="text" placeholder="Seu nome completo"></div>
+      <div><label>Matrícula</label><input id="matricula" type="text" placeholder="Ex: 20230001234"></div>
+      <div><label>Turno</label>
+        <select id="turno"><option value="Vespertino">Vespertino</option><option value="Noturno">Noturno</option></select>
       </div>
-      <div>
-        <label>Matrícula</label>
-        <input type="text" id="matricula" placeholder="Ex: 20230001234">
-      </div>
-      <div>
-        <label>Turno</label>
-        <select id="turno">
-          <option value="Vespertino">Vespertino</option>
-          <option value="Noturno">Noturno</option>
-        </select>
-      </div>
-      <div>
-        <label>Instituição de origem</label>
-        <input type="text" id="inst_origem" placeholder="Ex: IFRN, UFERSA...">
-      </div>
+      <div><label>Instituição de origem</label><input id="inst_origem" type="text" placeholder="Ex: IFRN, UFERSA..."></div>
     </div>
   </div>
 
-  <!-- Busca -->
   <div class="section">
     <h2>🔍 Buscar componente pretendida</h2>
+    <div style="margin-bottom:14px">
+      <span class="filtro-label">🏛️ Filtrar por instituição de origem <span style="color:#aaa;font-weight:400">(sem seleção = todas)</span></span>
+      <div class="inst-chips" id="inst-chips"></div>
+      <button class="btn-limpar-filtro" id="btn-limpar" onclick="limparFiltro()">✕ Limpar seleção</button>
+    </div>
     <div class="search-wrap">
-      <input type="text" id="busca-input" placeholder="Digite o nome ou código da componente..." autocomplete="off">
+      <input id="busca" type="text" placeholder="Digite o nome ou código da componente..." autocomplete="off">
       <div class="dropdown" id="dropdown"></div>
     </div>
-    <div id="resultado-busca"></div>
+    <div id="resultado"></div>
   </div>
 
-  <!-- Pedido -->
   <div class="section">
-    <h2>📄 Seu pedido</h2>
+    <h2>📄 Proposta de pedido</h2>
     <div id="lista-pedido"><p class="pedido-vazio">Nenhuma componente adicionada ainda.</p></div>
-    <button class="btn-pdf" id="btn-pdf" onclick="gerarPDF()">📥 Gerar PDF do pedido</button>
+    <button class="btn-pdf" onclick="gerarPDF()">📥 Gerar proposta em PDF</button>
   </div>
-
 </div>
 
 <script>
-// ── Dados da planilha ──────────────────────────────────────────────────────
-const DADOS = [
-  { comp: "FIS0801 - FÍSICA GERAL I - 60h",         nv: 1, nn: 1, inst: "UFRN-ECT",      cursado: "",                                              resultado: "ACEITO" },
-  { comp: "FIS0801 - FÍSICA GERAL I - 60h",         nv: 1, nn: 1, inst: "IFRN-superior", cursado: "ENG. 0007 - Mecânica Clássica (90h)",            resultado: "ACEITO" },
-  { comp: "FIS0801 - FÍSICA GERAL I - 60h",         nv: 1, nn: 1, inst: "IFRN-médio",    cursado: "TIN. 0186 - Física I (120h)",                   resultado: "ACEITO" },
-  { comp: "FIS0801 - FÍSICA GERAL I - 60h",         nv: 1, nn: 1, inst: "UFERSA",        cursado: "MME1825 - MECÂNICA CLÁSSICA",                   resultado: "ACEITO" },
-  { comp: "FIS0821 - LABORATÓRIO DE FÍSICA I - 30h",nv: 1, nn: 1, inst: "",              cursado: "",                                              resultado: "" },
-  { comp: "FIS0821 - LABORATÓRIO DE FÍSICA I - 30h",nv: 1, nn: null,inst:"UFERSA",       cursado: "MME1831 - LABORATÓRIO DE MECÂNICA CLÁSSICA",    resultado: "ACEITO" },
-  { comp: "MAT0411 - CÁLCULO 1 - E - 90h",          nv: 1, nn: 1, inst: "",              cursado: "",                                              resultado: "" },
-  { comp: "MAT0411 - CÁLCULO 1 - E - 90h",          nv: 1, nn: 1, inst: "IFRN-superior", cursado: "ENG. 0003 - Cálculo para Engenharia I (90h)",  resultado: "ACEITO" },
-  { comp: "MAT0411 - CÁLCULO 1 - E - 90h",          nv: 1, nn: null,inst:"UFERSA",       cursado: "MME1814 - CÁLCULO I",                          resultado: "ACEITO" },
-  { comp: "PRO3008 - VISÃO SISTÊMICA E CTS - 60h",  nv: 1, nn: 1, inst: "",              cursado: "",                                              resultado: "" },
-  { comp: "PRO3101 - PROJETO DE INTRODUÇÃO À ENGENHARIA DE PRODUÇÃO - 60h", nv: 1, nn: 1, inst: "", cursado: "", resultado: "NEGADO" },
-  { comp: "PRO3101 - PROJETO DE INTRODUÇÃO À ENGENHARIA DE PRODUÇÃO - 60h", nv: 1, nn: null, inst: "UFERSA", cursado: "MEA2104 - FUNDAMENTOS DE ENGENHARIA DE PRODUÇÃO", resultado: "ACEITO" },
-  { comp: "FIS0802 - FÍSICA GERAL II - 60h",         nv: 3, nn: null,inst:"IFRN-médio",  cursado: "TIN. 0186 - Física I (120h)",                   resultado: "ACEITO" },
-  { comp: "QUI0311 - QUIMICA BASICA - 60h",          nv: 1, nn: null,inst:"IFRN-superior",cursado:"ENG. 0010 - Química Geral (60h)",               resultado: "ACEITO" },
-  { comp: "QUI0311 - QUIMICA BASICA - 60h",          nv: 1, nn: null,inst:"UFERSA",      cursado: "MET1832 - QUÍMICA GERAL",                       resultado: "ACEITO" },
-  { comp: "ARQ0002 - DESENHO TECNICO - 60h",         nv: null,nn: null,inst:"IFRN-médio",cursado: "TSUB.0732 - Desenho Técnico (60h)",             resultado: "NEGADO" },
-  { comp: "PRO3503 - ERGONOMIA - 60h",               nv: null,nn: null,inst:"IFRN-médio",cursado: "TSUB.0739 - Ergonomia(60H)",                    resultado: "ACEITO" },
-  { comp: "PRO3504 - HIGIENE E SEGURANÇA DO TRABALHO - 60h", nv: null, nn: null, inst: "IFRN-médio", cursado: "TSUB.0740 - Higiene Ocupacional(60H) / TSUB.0743 - Segurança do Trabalho(60H)", resultado: "ACEITO" },
-  { comp: "PRO3504 - HIGIENE E SEGURANÇA DO TRABALHO - 60h", nv: null, nn: null, inst: "IFRN-médio", cursado: "TIN.0516 - Segurança do Trabalho(45H)", resultado: "NEGADO" },
-  { comp: "MEC2617 - INTRODUÇÃO À DINÂMICA - 30h",   nv: null,nn: null,inst:"IFRN-médio",cursado:"TIN. 0186 - Física I (120h)",                    resultado: "NEGADO" },
-  { comp: "PRO3302 - MATEMÁTICA FINANCEIRA - 60h",   nv: null,nn: null,inst:"IFRN-médio",cursado:"TIN.0064 - Matemática Financeira (90H)",          resultado: "ACEITO" },
-];
+var DADOS = {"FIS0801 - FÍSICA GERAL I - 60h":{"nivel_vespertino":null,"nivel_noturno":1,"instituicoes":{"IFRN - Superior":[{"id_opcao":1,"num_opcao":1,"componentes":["ENG. 0007 Mecânica Clássica (90h)"],"requer_conjunto":false}],"IFRN - Técnico":[{"id_opcao":2,"num_opcao":1,"componentes":["TIN. 0186 Física I(120H)"],"requer_conjunto":false},{"id_opcao":3,"num_opcao":2,"componentes":["TEC.0327 Física","TEC.0433 Física Aplicada"],"requer_conjunto":true}],"UFPB":[{"id_opcao":4,"num_opcao":1,"componentes":["1101157 FÍSICA GERAL I"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":5,"num_opcao":1,"componentes":["ECT1214 - PRINCÍPIOS E FENÔMENOS DA MECÂNICA - 80h"],"requer_conjunto":false}],"UnP":[{"id_opcao":6,"num_opcao":1,"componentes":["339510 Análise de fenômenos físicos da natureza"],"requer_conjunto":false}]}},"FIS0821 - LABORATÓRIO DE FÍSICA I - 30h":{"nivel_vespertino":null,"nivel_noturno":1,"instituicoes":{"IFRN - Técnico":[{"id_opcao":7,"num_opcao":1,"componentes":["TIN. 0186 Física I(120H)"],"requer_conjunto":false}],"UFERSA":[{"id_opcao":8,"num_opcao":1,"componentes":["PEX0122 Laboratório de Mecânica Clássica"],"requer_conjunto":false},{"id_opcao":9,"num_opcao":2,"componentes":["EXA0122 LABORATORIO DE MECANICA CLASSICA"],"requer_conjunto":false}],"UFPB":[{"id_opcao":10,"num_opcao":1,"componentes":["1101165 FÍSICA EXPERIMENTAL I"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":11,"num_opcao":1,"componentes":["FIS0315 - FISICA EXPERIMENTAL I - 45h"],"requer_conjunto":false},{"id_opcao":12,"num_opcao":2,"componentes":["ECT2307 - FÍSICA EXPERIMENTAL I - 30h"],"requer_conjunto":false}],"UnP":[{"id_opcao":13,"num_opcao":1,"componentes":["1-33783UNP Laboratório de Matemática e Física"],"requer_conjunto":false}]}},"MAT0411 - CÁLCULO 1 - E - 90h":{"nivel_vespertino":null,"nivel_noturno":1,"instituicoes":{"IFRN - Superior":[{"id_opcao":14,"num_opcao":1,"componentes":["ENG.0003 Cálculo para Engenharia I"],"requer_conjunto":false},{"id_opcao":15,"num_opcao":2,"componentes":["ENG.0123 Matemática para Engenharia I"],"requer_conjunto":false}],"IFRN - Técnico":[{"id_opcao":16,"num_opcao":1,"componentes":["TEC.0071 Cálculo Diferencial e Integral"],"requer_conjunto":false}],"UFPB":[{"id_opcao":17,"num_opcao":1,"componentes":["1103177 CÁLCULO DIFERENCIAL E INTEGRAL I"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":18,"num_opcao":1,"componentes":["MAT0345 - CALCULO DIFERENCIAL E INTEGRAL I - 90h"],"requer_conjunto":false},{"id_opcao":19,"num_opcao":2,"componentes":["PRO1001 - CÁLCULO I PARA ENGENHARIA DE PRODUÇÃO - 90h"],"requer_conjunto":false},{"id_opcao":20,"num_opcao":3,"componentes":["MAT0023 - CÁLCULO I PARA ENGENHARIA DE PRODUÇÃO - 90h"],"requer_conjunto":false},{"id_opcao":21,"num_opcao":4,"componentes":["MAT0220 - CALCULO DIFERENCIAL E INTEGRAL - 60h"],"requer_conjunto":false},{"id_opcao":22,"num_opcao":5,"componentes":["MAT0311 - MATEMATICA PARA ENGENHARIA I - 90h"],"requer_conjunto":false},{"id_opcao":23,"num_opcao":6,"componentes":["ECT1113 - CÁLCULO I - 80h"],"requer_conjunto":false},{"id_opcao":24,"num_opcao":7,"componentes":["ECT2103 - CÁLCULO I - 60h"],"requer_conjunto":false}],"UnP":[{"id_opcao":25,"num_opcao":1,"componentes":["33782 CÁLCULO APLICADO UMA VARIÁVEL"],"requer_conjunto":false}]}},"PRO3008 - VISÃO SISTÊMICA E CTS - 60h":{"nivel_vespertino":null,"nivel_noturno":1,"instituicoes":{"UFERSA":[{"id_opcao":26,"num_opcao":1,"componentes":["PAC0178 SOCIOLOGIA"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":27,"num_opcao":1,"componentes":["ECT3106 - CIÊNCIA, TECNOLOGIA E SOCIEDADE - 30h","ECT3308 - CIÊNCIA, TECNOLOGIA E SOCIEDADE II - 30h"],"requer_conjunto":true}]}},"PRO3101 - PROJETO DE INTRODUÇÃO À ENGENHARIA DE PRODUÇÃO - 60h":{"nivel_vespertino":null,"nivel_noturno":1,"instituicoes":{"IFRN - Superior":[{"id_opcao":28,"num_opcao":1,"componentes":["ENG. 0155 - Introdução à Engenharia de Produção"],"requer_conjunto":false}],"UFPB":[{"id_opcao":29,"num_opcao":1,"componentes":["1705112 INTRODUÇÃO À ENGENHARIA DE PRODUÇÃO"],"requer_conjunto":false}]}},"FIS0803 - FÍSICA GERAL III - 60h":{"nivel_vespertino":null,"nivel_noturno":2,"instituicoes":{"IFRN - Técnico":[{"id_opcao":30,"num_opcao":1,"componentes":["TIN.0202 Física II(120H)"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":31,"num_opcao":1,"componentes":["ECT2402 - INTRODUÇÃO À FÍSICA CLÁSSICA III - 60h"],"requer_conjunto":false},{"id_opcao":32,"num_opcao":2,"componentes":["ECT1315 - PRINCÍPIOS E FENÔMENOS ELETROMAGNÉTICOS - 80h"],"requer_conjunto":false}],"UFRN - Técnico":[{"id_opcao":33,"num_opcao":1,"componentes":["EAJ0331 FÍSICA III"],"requer_conjunto":false}],"UnP":[{"id_opcao":34,"num_opcao":1,"componentes":["33793 FÍSICA - ONDAS, ELETRICIDADE E MAGNETISMO"],"requer_conjunto":false}]}},"MAT0412 - CÁLCULO 2 - E - 60h":{"nivel_vespertino":null,"nivel_noturno":2,"instituicoes":{"IFRN - Superior":[{"id_opcao":35,"num_opcao":1,"componentes":["ENG.0125 Matemática para Engenharia II"],"requer_conjunto":false}],"UFPB":[{"id_opcao":36,"num_opcao":1,"componentes":["1103178 CÁLCULO DIFERENCIAL E INTEGRAL II"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":37,"num_opcao":1,"componentes":["MAT0321 - CALCULO BASICO II - 60h"],"requer_conjunto":false},{"id_opcao":38,"num_opcao":2,"componentes":["PRO1002 - CÁLCULO II PARA ENGENHARIA DE PRODUÇÃO - 90h"],"requer_conjunto":false},{"id_opcao":39,"num_opcao":3,"componentes":["ECT2201 - CÁLCULO II - 60h"],"requer_conjunto":false},{"id_opcao":40,"num_opcao":4,"componentes":["ECT1212 - CÁLCULO II - 80h"],"requer_conjunto":false},{"id_opcao":41,"num_opcao":5,"componentes":["MAT0312 - MATEMATICA PARA ENGENHARIA II - 90h"],"requer_conjunto":false},{"id_opcao":42,"num_opcao":6,"componentes":["MAT0346 - CALCULO DIFERENCIAL E INTEGRAL II - 90h"],"requer_conjunto":false}]}},"MAT0421 - ÁLGEBRA LINEAR - 60h":{"nivel_vespertino":null,"nivel_noturno":2,"instituicoes":{"UFPB":[{"id_opcao":43,"num_opcao":1,"componentes":["1103179 INTRODUÇÃO À ÁLGEBRA LINEAR"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":44,"num_opcao":1,"componentes":["ECT2202 - ÁLGEBRA LINEAR - 60h"],"requer_conjunto":false},{"id_opcao":45,"num_opcao":2,"componentes":["ECT1211 - ÁLGEBRA LINEAR - 80h"],"requer_conjunto":false},{"id_opcao":46,"num_opcao":3,"componentes":["ECT2102 - VETORES E GEOMETRIA ANALÍTICA - 60h"],"requer_conjunto":false}]}},"PRO3006 - METODOLOGIA DO TRABALHO CIENTÍFICO - 60h":{"nivel_vespertino":null,"nivel_noturno":2,"instituicoes":{"IFRN - Técnico":[{"id_opcao":47,"num_opcao":1,"componentes":["TIN.0070 Seminário de Iniciação à Pesquisa"],"requer_conjunto":false}],"UFPB":[{"id_opcao":48,"num_opcao":1,"componentes":["1705151 METODOLOGIA DO TRABALHO CIENTÍFICO"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":49,"num_opcao":1,"componentes":["ECT2302 - METODOLOGIA CIENTÍFICA E TECNOLÓGICA - 30h"],"requer_conjunto":false},{"id_opcao":50,"num_opcao":2,"componentes":["CIN0038 - METODOLOGIA DA PESQUISA I - 30h","CIN0039 - METODOLOGIA DA PESQUISA II - 30h"],"requer_conjunto":true},{"id_opcao":51,"num_opcao":3,"componentes":["EFL0301 - METODOS E TECNICAS DE PESQUISAS - 30h"],"requer_conjunto":false},{"id_opcao":52,"num_opcao":4,"componentes":["ECT3103 - METODOLOGIA CIENTÍFICA, TECNOLÓGICA E EMPREENDEDORA - 30h"],"requer_conjunto":false},{"id_opcao":53,"num_opcao":5,"componentes":["ECT2608 - METODOLOGIA DA PESQUISA PARA O TRABALHO DE CONCLUSÃO DE CURSO EM CIÊNCIAS E TECNOLOGIA - 30h"],"requer_conjunto":false}]}},"PRO3401 - PLANEJAMENTO E GESTÃO DOS PROCESSOS PRODUTIVOS - 60h":{"nivel_vespertino":null,"nivel_noturno":2,"instituicoes":{"IFRN - Superior":[{"id_opcao":54,"num_opcao":1,"componentes":["ENG.0150 Gestão de Sistemas de Produção","ENG.0153 Engenharia de Métodos"],"requer_conjunto":true}]}},"ELE0390 - ELETROTECNICA BASICA - 60h":{"nivel_vespertino":null,"nivel_noturno":3,"instituicoes":{"IFRN - Técnico":[{"id_opcao":55,"num_opcao":1,"componentes":["TIN.0646 - Eletricidade Básica"],"requer_conjunto":false},{"id_opcao":56,"num_opcao":2,"componentes":["TIN.0745 Instalações Elétricas(60H)"],"requer_conjunto":false},{"id_opcao":57,"num_opcao":3,"componentes":["TIN.0308 Eletricidade Básica(30H)"],"requer_conjunto":false},{"id_opcao":58,"num_opcao":4,"componentes":["TIN.0932 Práticas de Eletricidade"],"requer_conjunto":false},{"id_opcao":59,"num_opcao":5,"componentes":["TIN.0625 Circuitos Elétricos em Corrente Contínua e Alternada(120H)"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":60,"num_opcao":1,"componentes":["ELE0506 - CIRCUITOS ELETRICOS - 90h"],"requer_conjunto":false},{"id_opcao":61,"num_opcao":2,"componentes":["ECT2414 - ELETRICIDADE APLICADA - 60h"],"requer_conjunto":false}]}},"FIS0802 - FÍSICA GERAL II - 60h":{"nivel_vespertino":null,"nivel_noturno":3,"instituicoes":{"IFRN - Superior":[{"id_opcao":62,"num_opcao":1,"componentes":["ENG.0009 Termodinâmica"],"requer_conjunto":false}],"IFRN - Técnico":[{"id_opcao":63,"num_opcao":1,"componentes":["TIN. 0186 Física I(120H)"],"requer_conjunto":false}],"UFPB":[{"id_opcao":64,"num_opcao":1,"componentes":["1101163 FÍSICA GERAL II"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":65,"num_opcao":1,"componentes":["ECT1314 - PRINCÍPIOS E FENÔMENOS TÉRMICOS E ONDULATÓRIOS - 80h"],"requer_conjunto":false},{"id_opcao":66,"num_opcao":2,"componentes":["ECT2304 - INTRODUÇÃO À FÍSICA CLÁSSICA II - 60h"],"requer_conjunto":false},{"id_opcao":67,"num_opcao":3,"componentes":["DBF0103 - FISICA GERAL E EXPERIMENTAL II - 60h"],"requer_conjunto":false}]}},"PRO3102 - GESTÃO ESTRATÉGICA E PLANEJAMENTO EMPRESARIAL - 60h":{"nivel_vespertino":null,"nivel_noturno":3,"instituicoes":{"IFRN - Técnico":[{"id_opcao":68,"num_opcao":1,"componentes":["TIN.0785 Gestão Empresarial e estratégia(60H)"],"requer_conjunto":false}],"UNINTER":[{"id_opcao":69,"num_opcao":1,"componentes":["GESTÃO EMPRESARIAL"],"requer_conjunto":false}]}},"PRO3701 - GESTÃO DA SUSTENTABILIDADE NAS ORGANIZAÇÕES - 60h":{"nivel_vespertino":null,"nivel_noturno":3,"instituicoes":{"UFRN (anterior)":[{"id_opcao":70,"num_opcao":1,"componentes":["CIV1202 - GESTÃO AMBIENTAL - 60h"],"requer_conjunto":false}],"UNINTER":[{"id_opcao":71,"num_opcao":1,"componentes":["Gestão Ambiental e Responsabilidade Social"],"requer_conjunto":false}]}},"QUI0311 - QUIMICA BASICA - 60h":{"nivel_vespertino":null,"nivel_noturno":3,"instituicoes":{"IFRN - Superior":[{"id_opcao":72,"num_opcao":1,"componentes":["ENG. 0010 - Química Geral"],"requer_conjunto":false}],"IFRN - Técnico":[{"id_opcao":73,"num_opcao":1,"componentes":["TIN. 0151 Química I(120H)"],"requer_conjunto":false}],"UFPB":[{"id_opcao":74,"num_opcao":1,"componentes":["1105161 QUÍMICA FUNDAMENTAL"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":75,"num_opcao":1,"componentes":["QUI1009 - QUÍMICA FUNDAMENTAL I - 60h"],"requer_conjunto":false},{"id_opcao":76,"num_opcao":2,"componentes":["ECT2104 - QUÍMICA GERAL - 90h"],"requer_conjunto":false},{"id_opcao":77,"num_opcao":3,"componentes":["ECT1104 - QUÍMICA TECNOLÓGICA - 90h"],"requer_conjunto":false}]}},"DIM0319 - ALGORÍTMO E PROGRAMAÇÃO DE COMPUTADORES - P - 60h":{"nivel_vespertino":null,"nivel_noturno":4,"instituicoes":{"IFRN - Superior":[{"id_opcao":78,"num_opcao":1,"componentes":["ENG. 0129 - Programação Aplicada à Engenharia"],"requer_conjunto":false}],"IFRN - Técnico":[{"id_opcao":79,"num_opcao":1,"componentes":["TIN.0628 Fundamentos de Programação(60H)"],"requer_conjunto":false},{"id_opcao":80,"num_opcao":2,"componentes":["TIN.0021 Fundamentos de Lógica e Algoritmos","TIN.0040 Programação Estruturada e Orientada a Objetos"],"requer_conjunto":true}],"UFPB":[{"id_opcao":81,"num_opcao":1,"componentes":["1107136 INTRODUÇÃO A PROGRAMAÇÃO"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":82,"num_opcao":1,"componentes":["DCA0800 - ALGORITMOS E LOGICA DE PROGRAMACAO - 60h"],"requer_conjunto":false},{"id_opcao":83,"num_opcao":2,"componentes":["DEQ0633 - INTRODUÇÃO A COMPUTAÇÃO PARA ENGENHARIA QUÍMICA/ALIMENTOS - 60h"],"requer_conjunto":false},{"id_opcao":84,"num_opcao":3,"componentes":["ECT2303 - LINGUAGEM DE PROGRAMAÇÃO - 90h"],"requer_conjunto":false},{"id_opcao":85,"num_opcao":4,"componentes":["ECT2203 - LÓGICA DE PROGRAMAÇÃO - 75h"],"requer_conjunto":false},{"id_opcao":86,"num_opcao":5,"componentes":["ECT3104 - LÓGICA DE PROGRAMAÇÃO - 60h"],"requer_conjunto":false},{"id_opcao":87,"num_opcao":6,"componentes":["IMD0012 - INTRODUÇÃO ÀS TÉCNICAS DE PROGRAMAÇÃO - 90h"],"requer_conjunto":false},{"id_opcao":88,"num_opcao":7,"componentes":["ECT1103 - INFORMÁTICA FUNDAMENTAL - 90h"],"requer_conjunto":false},{"id_opcao":89,"num_opcao":8,"componentes":["DIM0320 - ALGORITMO E PROGRAMACAO DE COMPUTADORES - 60h"],"requer_conjunto":false}],"UnP":[{"id_opcao":90,"num_opcao":1,"componentes":["157360 Programação de soluções computacionais"],"requer_conjunto":false},{"id_opcao":91,"num_opcao":2,"componentes":["1-30683UNP Algoritmos e Programação"],"requer_conjunto":false}]}},"MEC2705 - MECÂNICA DOS FLUIDOS - 60h":{"nivel_vespertino":null,"nivel_noturno":4,"instituicoes":{"UFRN (anterior)":[{"id_opcao":92,"num_opcao":1,"componentes":["ECT2413 - MECÂNICA DOS FLUIDOS - 60h"],"requer_conjunto":false},{"id_opcao":93,"num_opcao":2,"componentes":["CIV0496 - FENÔMENOS DOS TRANSPORTES - 60h"],"requer_conjunto":false}]}},"PRO3301 - ECONOMIA PARA ENGENHARIA DE PRODUÇÃO - 60h":{"nivel_vespertino":null,"nivel_noturno":4,"instituicoes":{}},"PRO3402 - GESTÃO DE SISTEMAS DE PRODUÇÃO I - 60h":{"nivel_vespertino":null,"nivel_noturno":4,"instituicoes":{}},"PRO3702 - GESTÃO DE RESÍDUOS - 60h":{"nivel_vespertino":null,"nivel_noturno":4,"instituicoes":{}},"ARQ0002 - DESENHO TECNICO - 60h":{"nivel_vespertino":null,"nivel_noturno":5,"instituicoes":{"IFRN - Técnico":[{"id_opcao":94,"num_opcao":1,"componentes":["TIN.0736 Desenho Técnico(60H)"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":95,"num_opcao":1,"componentes":["ECT2416 - EXPRESSÃO GRÁFICA - 60h"],"requer_conjunto":false},{"id_opcao":96,"num_opcao":2,"componentes":["CIV0402 - DESENHO BÁSICO - 60h"],"requer_conjunto":false},{"id_opcao":97,"num_opcao":3,"componentes":["MEC1505 - CAD PARA ENGENHARIA I - 60h"],"requer_conjunto":false},{"id_opcao":98,"num_opcao":4,"componentes":["ARQ0030 - EXPRESSAO GRAFICA - 60h"],"requer_conjunto":false}],"UnP":[{"id_opcao":99,"num_opcao":1,"componentes":["30700 PROJETOS DE ENGENHARIA"],"requer_conjunto":false},{"id_opcao":100,"num_opcao":2,"componentes":["1-33779UNP Desenho Técnico e Computacional"],"requer_conjunto":false}]}},"MEC2618 - MECÂNICA DOS SÓLIDOS - 60h":{"nivel_vespertino":null,"nivel_noturno":5,"instituicoes":{"UFRN (anterior)":[{"id_opcao":101,"num_opcao":1,"componentes":["ECT2412 - MECÂNICA DOS SÓLIDOS - 60h"],"requer_conjunto":false},{"id_opcao":102,"num_opcao":2,"componentes":["MEC1604 - MECÂNICA DOS SÓLIDOS II - 60h"],"requer_conjunto":false}],"UnP":[{"id_opcao":103,"num_opcao":1,"componentes":["1-33789UNP Mecânica dos Sólidos - Estática"],"requer_conjunto":false}]}},"PRO3004 - MÉTODOS NUMÉRICOS PARA ENGENHARIA DE PRODUÇÃO - 60h":{"nivel_vespertino":null,"nivel_noturno":5,"instituicoes":{"UFRN (anterior)":[{"id_opcao":104,"num_opcao":1,"componentes":["ECT2401 - COMPUTAÇÃO NUMÉRICA - 75h"],"requer_conjunto":false},{"id_opcao":105,"num_opcao":2,"componentes":["ECT1303 - COMPUTAÇÃO NUMÉRICA - 90h"],"requer_conjunto":false}]}},"PRO3302 - MATEMÁTICA FINANCEIRA - 60h":{"nivel_vespertino":null,"nivel_noturno":5,"instituicoes":{"IFRN - Superior":[{"id_opcao":106,"num_opcao":1,"componentes":["ENG.0131 Matemática Financeira"],"requer_conjunto":false}],"IFRN - Técnico":[{"id_opcao":107,"num_opcao":1,"componentes":["TIN.0064 Matemática Financeira"],"requer_conjunto":false},{"id_opcao":108,"num_opcao":2,"componentes":["TEC.0436 Matemática Financeira"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":109,"num_opcao":1,"componentes":["DDA0003 - MATEMÁTICA FINANCEIRA PARA CIÊNCIAS ATUARIAIS - 60h"],"requer_conjunto":false},{"id_opcao":110,"num_opcao":2,"componentes":["PRO0331 - MATEMATICA FINANCEIRA - 60h"],"requer_conjunto":false}]}},"MEC2617 - INTRODUÇÃO À DINÂMICA - 30h":{"nivel_vespertino":null,"nivel_noturno":6,"instituicoes":{"UFRN (anterior)":[{"id_opcao":111,"num_opcao":1,"componentes":["MEC1508 - DINÂMICA - 60h"],"requer_conjunto":false}]}},"PRO3005 - ESTATÍSTICA PARA ENGENHARIA DE PRODUÇÃO - 90h":{"nivel_vespertino":null,"nivel_noturno":6,"instituicoes":{"IFRN - Superior":[{"id_opcao":112,"num_opcao":1,"componentes":["ENG.0151 Estatística para Engenharia"],"requer_conjunto":false}],"IFRN - Técnico":[{"id_opcao":113,"num_opcao":1,"componentes":["TIN.0058 Estatística"],"requer_conjunto":false}],"UFRN (anterior)":[{"id_opcao":114,"num_opcao":1,"componentes":["ECT1301 - PROBABILIDADE E ESTATÍSTICA - 60h"],"requer_conjunto":false},{"id_opcao":115,"num_opcao":2,"componentes":["CIV1803 - ESTATÍSTICA APLICADA À ENGENHARIA - 60h"],"requer_conjunto":false},{"id_opcao":116,"num_opcao":3,"componentes":["ECT2207 - PROBABILIDADE E ESTATÍSTICA - 60h"],"requer_conjunto":false}],"UNINTER":[{"id_opcao":117,"num_opcao":1,"componentes":["Estatística Aplicada"],"requer_conjunto":false}],"UnP":[{"id_opcao":118,"num_opcao":1,"componentes":["33781 ESTATÍSTICA E PROBABILIDADE APLICADA"],"requer_conjunto":false}]}},"PRO3303 - CONTABILIDADE EMPRESARIAL - 60h":{"nivel_vespertino":null,"nivel_noturno":6,"instituicoes":{"IFRN - Técnico":[{"id_opcao":119,"num_opcao":1,"componentes":["TIN.0056 Contabilidade Geral"],"requer_conjunto":false}]}},"PRO3703 - TECNOLOGIAS AMBIENTAIS - 60h":{"nivel_vespertino":null,"nivel_noturno":6,"instituicoes":{}},"PRO3901 - GESTÃO DA QUALIDADE - 60h":{"nivel_vespertino":null,"nivel_noturno":6,"instituicoes":{"IFRN - Técnico":[{"id_opcao":120,"num_opcao":1,"componentes":["TIN.0799 Qualidade e serviço logístico(60H)"],"requer_conjunto":false}]}},"PRO3206 - NOÇÕES DE BANCOS DE DADOS E BUSINESS INTELLIGENCE - 60h":{"nivel_vespertino":null,"nivel_noturno":7,"instituicoes":{"UnP":[{"id_opcao":121,"num_opcao":1,"componentes":["2-33285UNP Arquitetura de Dados Estruturados e Não Estruturados","2-33289UNP Processo de Etl Em Um Data Warehouse","2-33290UNP Ferramentas Para Visualização de Dados"],"requer_conjunto":true}]}},"PRO3304 - CONTABILIDADE DE CUSTOS I - 60h":{"nivel_vespertino":null,"nivel_noturno":7,"instituicoes":{"IFRN - Técnico":[{"id_opcao":122,"num_opcao":1,"componentes":["TIN.0056 Contabilidade Geral"],"requer_conjunto":false}],"UNINTER":[{"id_opcao":123,"num_opcao":1,"componentes":["Gestão de Custos"],"requer_conjunto":false}]}},"PRO3403 - GESTÃO DE SISTEMAS DE PRODUÇÃO II - 60h":{"nivel_vespertino":null,"nivel_noturno":7,"instituicoes":{}},"PRO3504 - HIGIENE E SEGURANÇA DO TRABALHO - 60h":{"nivel_vespertino":null,"nivel_noturno":7,"instituicoes":{"IFRN - Técnico":[{"id_opcao":124,"num_opcao":1,"componentes":["TSUB.0729 Saúde Ocupacional(30H)","TSUB.0743 Segurança do Trabalho(60H)"],"requer_conjunto":true}]}},"PRO3801 - PESQUISA OPERACIONAL I - 60h":{"nivel_vespertino":null,"nivel_noturno":7,"instituicoes":{"UnP":[{"id_opcao":125,"num_opcao":1,"componentes":["30832 PESQUISA OPERACIONAL"],"requer_conjunto":false}]}},"PRO3305 - ENGENHARIA ECONÔMICA - 60h":{"nivel_vespertino":null,"nivel_noturno":8,"instituicoes":{}},"PRO3503 - ERGONOMIA - 60h":{"nivel_vespertino":null,"nivel_noturno":8,"instituicoes":{"IFRN - Técnico":[{"id_opcao":126,"num_opcao":1,"componentes":["TSUB.0739 Ergonomia(60H)"],"requer_conjunto":false}]}},"PRO3601 - MARKETING PARA ENGENHARIA DE PRODUÇÃO - 60h":{"nivel_vespertino":null,"nivel_noturno":8,"instituicoes":{"IFRN - Técnico":[{"id_opcao":127,"num_opcao":1,"componentes":["TIN.0066 Marketing e Serviços"],"requer_conjunto":false}],"UnP":[{"id_opcao":128,"num_opcao":1,"componentes":["MARKETING"],"requer_conjunto":false}]}},"PRO3802 - PESQUISA OPERACIONAL II - 60h":{"nivel_vespertino":null,"nivel_noturno":8,"instituicoes":{}},"PRO3103 - ESTRATÉGIA DE PRODUÇÃO - 60h":{"nivel_vespertino":null,"nivel_noturno":9,"instituicoes":{}},"PRO3404 - GESTÃO DE SISTEMAS DE PRODUÇÃO III - 60h":{"nivel_vespertino":null,"nivel_noturno":9,"instituicoes":{}},"PRO3406 - GESTÃO DA MANUTENÇÃO - 60h":{"nivel_vespertino":null,"nivel_noturno":9,"instituicoes":{"UnP":[{"id_opcao":129,"num_opcao":1,"componentes":["33829 ENGENHARIA DE MANUTENÇÃO E CONFIABILIDADE"],"requer_conjunto":false}]}},"PRO3803 - TEORIA DAS FILAS E SIMULAÇÃO - 60h":{"nivel_vespertino":null,"nivel_noturno":9,"instituicoes":{}},"PRO3902 - ENGENHARIA DA QUALIDADE - 60h":{"nivel_vespertino":null,"nivel_noturno":9,"instituicoes":{}},"PRO3405 - LOGÍSTICA EMPRESARIAL - 90h":{"nivel_vespertino":null,"nivel_noturno":10,"instituicoes":{"UFERSA":[{"id_opcao":130,"num_opcao":1,"componentes":["AMB5010 LOGISTICA E GESTAO DE REDES DE SUPRIMENTOS I"],"requer_conjunto":false}]}},"PRO3502 - ANÁLISE ERGONÔMICA DO TRABALHO - 60h":{"nivel_vespertino":null,"nivel_noturno":10,"instituicoes":{}},"PRO3602 - ENGENHARIA DO PRODUTO - 90h":{"nivel_vespertino":null,"nivel_noturno":10,"instituicoes":{}},"PRO3992 - PROJETO DE SISTEMA DE PRODUÇÃO - 90h":{"nivel_vespertino":null,"nivel_noturno":11,"instituicoes":{}},"PRO3993 - TRABALHO DE CONCLUSÃO DE CURSO I - 30h":{"nivel_vespertino":null,"nivel_noturno":11,"instituicoes":{}}}
+;
 
-const componentes = [...new Set(DADOS.map(d => d.comp))];
-let pedido = [];
-let compSelecionada = null;
+var TODAS_INSTS = ['IFRN - Superior','IFRN - Técnico','UFERSA','UFPB','UFRN (anterior)','UFRN - Técnico','UNINTER','UNINASSAU','UnP'];
+var instsFiltro = [];
+var compSelecionada = null;
+var pedido = [];
+var conjSelecionados = {};
+var componentes = Object.keys(DADOS).sort();
 
-// ── Busca com dropdown ─────────────────────────────────────────────────────
-const buscaInput = document.getElementById('busca-input');
-const dropdown   = document.getElementById('dropdown');
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function hE(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-buscaInput.addEventListener('input', () => {
-  const q = buscaInput.value.toLowerCase().trim();
-  dropdown.innerHTML = '';
-  if (!q) { dropdown.classList.remove('open'); return; }
-
-  const filtradas = componentes.filter(c => c.toLowerCase().includes(q));
-  if (!filtradas.length) { dropdown.classList.remove('open'); return; }
-
-  filtradas.forEach(c => {
-    const item = document.createElement('div');
-    item.className = 'dropdown-item';
-    item.textContent = c;
-    item.onclick = () => selecionarComp(c);
-    dropdown.appendChild(item);
+// ── Chips ─────────────────────────────────────────────────────────────────
+function renderChips(){
+  var wrap = document.getElementById('inst-chips');
+  var html = '';
+  TODAS_INSTS.forEach(function(inst){
+    var ativo = instsFiltro.indexOf(inst) >= 0;
+    html += '<div class="chip' + (ativo?' ativo':'') + '" data-inst="' + hE(inst) + '">' +
+            '<span>' + (ativo?'✓':'+') + '</span> ' + hE(inst) + '</div>';
   });
-  dropdown.classList.add('open');
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.chip').forEach(function(chip){
+    chip.addEventListener('click', function(){ toggleInst(chip.dataset.inst); });
+  });
+  var btn = document.getElementById('btn-limpar');
+  btn.style.display = instsFiltro.length > 0 ? 'inline' : 'none';
+  if(compSelecionada) renderResultado();
+}
+
+function toggleInst(inst){
+  var idx = instsFiltro.indexOf(inst);
+  if(idx >= 0) instsFiltro.splice(idx,1);
+  else instsFiltro.push(inst);
+  renderChips();
+}
+
+function limparFiltro(){ instsFiltro = []; renderChips(); }
+
+renderChips();
+
+// ── Busca ─────────────────────────────────────────────────────────────────
+var buscaEl = document.getElementById('busca');
+var ddEl    = document.getElementById('dropdown');
+
+buscaEl.addEventListener('input', function(){
+  var q = norm(buscaEl.value.trim());
+  ddEl.innerHTML = '';
+  if(!q){ ddEl.classList.remove('open'); return; }
+  var found = componentes.filter(function(c){ return norm(c).indexOf(q) >= 0; });
+  if(!found.length){ ddEl.classList.remove('open'); return; }
+  found.forEach(function(c){
+    var d = document.createElement('div');
+    d.className = 'dd-item';
+    d.textContent = c;
+    d.addEventListener('click', function(){ selComp(c); });
+    ddEl.appendChild(d);
+  });
+  ddEl.classList.add('open');
 });
 
-document.addEventListener('click', e => {
-  if (!e.target.closest('.search-wrap')) dropdown.classList.remove('open');
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.search-wrap')) ddEl.classList.remove('open');
 });
 
-function selecionarComp(comp) {
-  compSelecionada = comp;
-  buscaInput.value = comp;
-  dropdown.classList.remove('open');
+function selComp(c){
+  compSelecionada = c;
+  buscaEl.value = c;
+  ddEl.classList.remove('open');
+  conjSelecionados = {};
   renderResultado();
 }
 
-// ── Renderiza equivalentes ─────────────────────────────────────────────────
-function renderResultado() {
-  const el = document.getElementById('resultado-busca');
-  if (!compSelecionada) { el.innerHTML = ''; return; }
+// ── Resultado ─────────────────────────────────────────────────────────────
+function compJaAdicionada(comp_ufrn){
+  return pedido.some(function(p){ return p.comp_ufrn === comp_ufrn; });
+}
 
-  const linhas = DADOS.filter(d => d.comp === compSelecionada);
-  const comInst = linhas.filter(d => d.inst);
-  const semInst = linhas.filter(d => !d.inst);
-
-  let html = `<hr class="divider"><div class="comp-selecionada">📚 ${compSelecionada}</div>`;
-
-  // Sem instituição registrada
-  const bloqueadaGeral = semInst.some(d => d.resultado === 'NEGADO' && !d.cursado);
-  if (bloqueadaGeral) {
-    html += `<div class="aviso-negado">⛔ Esta componente teve pedidos anteriores <b>negados</b> e não pode ser incluída no pedido de aproveitamento.</div>`;
+function encontrarOpcao(id_opcao){
+  if(!compSelecionada) return null;
+  var insts = DADOS[compSelecionada].instituicoes;
+  var keys = Object.keys(insts);
+  for(var i=0;i<keys.length;i++){
+    var ops = insts[keys[i]];
+    for(var j=0;j<ops.length;j++){
+      if(ops[j].id_opcao === id_opcao) return ops[j];
+    }
   }
+  return null;
+}
 
-  // Com instituições
-  const aceitas = comInst.filter(d => d.resultado === 'ACEITO');
-  const negadas  = comInst.filter(d => d.resultado === 'NEGADO');
+function renderResultado(){
+  var el = document.getElementById('resultado');
+  if(!compSelecionada){ el.innerHTML = ''; return; }
 
-  if (aceitas.length) {
-    html += `<div class="eq-section"><div class="eq-titulo">✅ Equivalentes aprovadas — clique na que você cursou</div>`;
-    aceitas.forEach((d, i) => {
-      const jaAdicionado = pedido.some(p => p.comp === d.comp && p.cursado === d.cursado && p.inst === d.inst);
-      const cls = jaAdicionado ? 'eq-card adicionado' : 'eq-card';
-      const onclick = jaAdicionado ? '' : `onclick="adicionarItem('${esc(d.comp)}','${esc(d.inst)}','${esc(d.cursado)}')"`;
-      html += `
-        <div class="${cls}" ${onclick}>
-          <div class="eq-card-info">
-            <div class="eq-inst">🏛️ ${d.inst}</div>
-            <div class="eq-nome">${d.cursado || '(componente idêntica)'}</div>
-          </div>
-          ${jaAdicionado
-            ? '<span class="badge badge-ok">✔ Adicionado</span>'
-            : '<span class="badge badge-aceito">ACEITO</span>'}
-        </div>`;
+  var info = DADOS[compSelecionada];
+  var insts = info.instituicoes;
+  var keys = Object.keys(insts);
+  var filtradas = instsFiltro.length === 0 ? keys : keys.filter(function(k){ return instsFiltro.indexOf(k) >= 0; });
+
+  var html = '<hr class="divider"><div class="comp-title">📚 ' + hE(compSelecionada) + '</div>';
+
+  if(!filtradas.length){
+    if(instsFiltro.length > 0){
+      html += '<div class="aviso">Nenhuma equivalência para as instituições selecionadas nesta componente.</div>';
+    } else {
+      html += '<div class="aviso">Não há equivalentes registradas para esta componente.</div>';
+    }
+  } else {
+    filtradas.forEach(function(inst){
+      var opcoes = insts[inst];
+      html += '<div class="inst-bloco"><div class="inst-nome">🏛️ ' + hE(inst) + '</div>';
+      opcoes.forEach(function(op){
+        var jaAdicionado = pedido.some(function(p){ return p.id_opcao === op.id_opcao; });
+        if(opcoes.length > 1){
+          html += '<div class="opcao-label">Opção ' + op.num_opcao + '</div>';
+        }
+        if(op.requer_conjunto){
+          var sel = conjSelecionados[op.id_opcao] || {};
+          var conjBloqueado = compJaAdicionada(compSelecionada) && !jaAdicionado;
+          html += '<div class="conj-wrap"' + (conjBloqueado?' style="opacity:.45"':'') + '>';
+          html += '<div class="conj-header' + (jaAdicionado?' adicionado':'') + '">';
+          html += '<span>📦 Conjunto — cursar os ' + op.componentes.length + ' abaixo</span>';
+          if(jaAdicionado) html += '<span class="badge badge-ok" style="margin-left:auto">✔ Adicionado</span>';
+          if(conjBloqueado) html += '<span class="badge" style="background:#eee;color:#aaa;margin-left:auto">Indisponível</span>';
+          html += '</div><div class="conj-itens">';
+          op.componentes.forEach(function(comp, ci){
+            var isSel = sel[ci] || jaAdicionado;
+            html += '<div class="conj-item' + (isSel?' selecionado':'') + '"' +
+                    ' data-type="conj" data-opcao-id="' + op.id_opcao + '" data-comp-idx="' + ci + '"' +
+                    ((jaAdicionado||conjBloqueado)?' style="cursor:default"':'') + '>' +
+                    '<div class="chk' + (isSel?' ok':'') + '">' + (isSel?'✓':'') + '</div>' +
+                    '<span>' + hE(comp) + '</span></div>';
+          });
+          html += '</div></div>';
+        } else {
+          var comp = op.componentes[0];
+          var compBloqueada = compJaAdicionada(compSelecionada) && !jaAdicionado;
+          html += '<div class="opcao-card' + (jaAdicionado?' adicionado':compBloqueada?' bloqueado':'') + '"' +
+                  ' data-type="simples" data-opcao-id="' + op.id_opcao + '"' +
+                  (jaAdicionado||compBloqueada?' style="cursor:default;opacity:.45"':'') + '>' +
+                  '<div class="chk' + (jaAdicionado?' ok':'') + '">' + (jaAdicionado?'✓':'') + '</div>' +
+                  '<span style="flex:1;font-size:.87rem">' + hE(comp) + '</span>' +
+                  (compBloqueada ? '<span class="badge" style="background:#eee;color:#aaa">Indisponível</span>' : '') +
+                  '</div>';
+        }
+      });
+      html += '</div>';
     });
-    html += `</div>`;
   }
 
-  if (negadas.length) {
-    html += `<div class="eq-section"><div class="eq-titulo">❌ Com pedidos anteriores negados</div>`;
-    negadas.forEach(d => {
-      html += `
-        <div class="eq-card negado">
-          <div class="eq-card-info">
-            <div class="eq-inst">🏛️ ${d.inst}</div>
-            <div class="eq-nome">${d.cursado}</div>
-          </div>
-          <span class="badge badge-negado">NEGADO</span>
-        </div>`;
-    });
-    html += `</div>`;
-  }
-
-  if (!comInst.length && !bloqueadaGeral) {
-    html += `<div class="aviso">ℹ️ Não há equivalentes homologadas para esta componente ainda.</div>`;
-  }
-
-  html += `
-    <button class="btn-novo" onclick="novoPedido()">
-      📝 Minha instituição não está na lista — Novo pedido de apreciação
-    </button>`;
-
+  html += '<button class="btn-novo" id="btn-novo-pedido">📝 Minha instituição não está na lista — Solicitar nova apreciação</button>';
   el.innerHTML = html;
+
+  // Event delegation
+  el.addEventListener('click', function(e){
+    var card = e.target.closest('[data-type]');
+    if(!card) {
+      if(e.target.id === 'btn-novo-pedido') novoPedido();
+      return;
+    }
+    var tipo = card.dataset.type;
+    var id_opcao = parseInt(card.dataset.opcaoId, 10);
+    var op = encontrarOpcao(id_opcao);
+    if(!op) return;
+
+    // Determina a instituição a partir do bloco pai
+    var blocoNome = card.closest('.inst-bloco');
+    var inst = blocoNome ? blocoNome.querySelector('.inst-nome').textContent.replace('🏛️ ','').trim() : '';
+
+    if(tipo === 'simples'){
+      if(compJaAdicionada(compSelecionada)) return;
+      pedido.push({ comp_ufrn: compSelecionada, inst: inst, id_opcao: id_opcao, componentes: op.componentes, label: op.componentes[0] });
+      renderPedido();
+      renderResultado();
+    } else if(tipo === 'conj'){
+      if(card.style.cursor === 'default') return;
+      if(compJaAdicionada(compSelecionada) && !pedido.some(function(p){ return p.id_opcao === id_opcao; })) return;
+      var ci = parseInt(card.dataset.compIdx, 10);
+      var comp = op.componentes[ci];
+      if(!conjSelecionados[id_opcao]) conjSelecionados[id_opcao] = {};
+      var sel = conjSelecionados[id_opcao];
+      sel[ci] = !sel[ci];
+      var todos = op.componentes.every(function(_, k){ return sel[k]; });
+      if(todos){
+        if(!pedido.some(function(p){ return p.id_opcao === id_opcao; })){
+          pedido.push({ comp_ufrn: compSelecionada, inst: inst, id_opcao: id_opcao, componentes: op.componentes, label: op.componentes.join(' + ') });
+          renderPedido();
+        }
+      } else {
+        var idx = pedido.findIndex(function(p){ return p.id_opcao === id_opcao; });
+        if(idx >= 0){ pedido.splice(idx,1); renderPedido(); }
+      }
+      renderResultado();
+    }
+  }, { once: true });
 }
 
-function esc(s) { return (s||'').replace(/'/g, "\\'"); }
+function novoPedido(){
+  var el = document.getElementById('resultado');
+  if(el.querySelector('.aviso-info')) return;
+  var d = document.createElement('div');
+  d.className = 'aviso-info';
+  d.textContent = '📌 Para solicitar nova apreciação, procure a Coordenação do Curso com histórico escolar e ementa da disciplina cursada.';
+  el.appendChild(d);
+}
 
-function adicionarItem(comp, inst, cursado) {
-  if (pedido.some(p => p.comp === comp && p.cursado === cursado && p.inst === inst)) return;
-  pedido.push({ comp, inst, cursado });
+function remover(idx){
+  var item = pedido[idx];
+  delete conjSelecionados[item.id_opcao];
+  pedido.splice(idx,1);
   renderPedido();
   renderResultado();
 }
 
-function removerItem(idx) {
-  pedido.splice(idx, 1);
-  renderPedido();
-  renderResultado();
+function renderPedido(){
+  var el = document.getElementById('lista-pedido');
+  if(!pedido.length){ el.innerHTML = '<p class="pedido-vazio">Nenhuma componente adicionada ainda.</p>'; return; }
+  var html = '';
+  pedido.forEach(function(p, i){
+    html += '<div class="pedido-item">' +
+            '<div style="flex:1"><div class="pedido-comp">' + hE(p.comp_ufrn) + '</div>' +
+            '<div class="pedido-sub">🏛️ ' + hE(p.inst) + '<br>' + hE(p.label) + '</div></div>' +
+            '<button class="btn-rem" data-idx="' + i + '">🗑️</button></div>';
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.btn-rem').forEach(function(btn){
+    btn.addEventListener('click', function(){ remover(parseInt(btn.dataset.idx, 10)); });
+  });
 }
 
-function novoPedido() {
-  document.getElementById('resultado-busca').innerHTML +=
-    `<div class="aviso" style="margin-top:10px;">📌 Para abrir um novo pedido de apreciação, procure a Coordenação do Curso com seu histórico escolar e a ementa da disciplina cursada.</div>`;
-}
+// ── PDF ───────────────────────────────────────────────────────────────────
+function gerarPDF(){
+  var nome      = document.getElementById('nome').value.trim();
+  var matricula = document.getElementById('matricula').value.trim();
+  var turno     = document.getElementById('turno').value;
+  var instOrig  = document.getElementById('inst_origem').value.trim();
+  if(!nome || !matricula){ alert('Preencha nome e matrícula antes de gerar o PDF.'); return; }
+  if(!pedido.length)     { alert('Adicione ao menos uma componente à proposta.'); return; }
 
-// ── Renderiza pedido ───────────────────────────────────────────────────────
-function renderPedido() {
-  const el = document.getElementById('lista-pedido');
-  if (!pedido.length) {
-    el.innerHTML = '<p class="pedido-vazio">Nenhuma componente adicionada ainda.</p>';
-    return;
-  }
-  el.innerHTML = pedido.map((p, i) => `
-    <div class="pedido-item">
-      <div class="pedido-item-info">
-        <div class="pedido-comp">${p.comp}</div>
-        <div class="pedido-sub">🏛️ ${p.inst} — ${p.cursado || 'Componente idêntica'}</div>
-      </div>
-      <button class="btn-rem" onclick="removerItem(${i})" title="Remover">🗑️</button>
-    </div>
-  `).join('');
-}
+  var doc = new window.jspdf.jsPDF({unit:'mm',format:'a4'});
+  var W=210,ml=15,mr=15,cw=W-ml-mr;
+  var y=14;
 
-// ── Geração de PDF ─────────────────────────────────────────────────────────
-function gerarPDF() {
-  const nome       = document.getElementById('nome').value.trim();
-  const matricula  = document.getElementById('matricula').value.trim();
-  const turno      = document.getElementById('turno').value;
-  const instOrigem = document.getElementById('inst_origem').value.trim();
+  doc.setFont('times','normal'); doc.setFontSize(8); doc.setTextColor(0,0,0);
+  doc.text('MINISTÉRIO DA EDUCAÇÃO',W/2,y,{align:'center'}); y+=4.5;
+  doc.text('UNIVERSIDADE FEDERAL DO RIO GRANDE DO NORTE',W/2,y,{align:'center'}); y+=4.5;
+  doc.text('COORDENAÇÃO DO CURSO ENGENHARIA DE PRODUÇÃO',W/2,y,{align:'center'}); y+=8;
 
-  if (!nome || !matricula) {
-    alert('Preencha seu nome e matrícula antes de gerar o PDF.');
-    return;
-  }
-  if (!pedido.length) {
-    alert('Adicione ao menos uma componente ao pedido.');
-    return;
-  }
+  doc.setFont('times','bold'); doc.setFontSize(9);
+  doc.text('PROPOSTA DE APROVEITAMENTO DE ESTUDOS',W/2,y,{align:'center'}); y+=5;
+  doc.setFont('times','normal'); doc.setFontSize(7.5); doc.setTextColor(120,0,0);
+  doc.text('DOCUMENTO NÃO OFICIAL — Sujeito a validação e protocolação pela Coordenação do Curso',W/2,y,{align:'center'}); y+=5;
+  doc.setTextColor(0,0,0);
+  doc.setDrawColor(0,0,0); doc.setLineWidth(0.4); doc.line(ml,y,W-mr,y); y+=5;
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = 210, ml = 20, mr = 20, cw = W - ml - mr;
-  let y = 20;
-
-  // Cabeçalho
-  doc.setFillColor(26, 58, 110);
-  doc.rect(ml, y, cw, 14, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.text('PEDIDO DE APROVEITAMENTO DE ESTUDOS', W / 2, y + 9, { align: 'center' });
-  y += 18;
-
-  doc.setTextColor(80, 80, 80);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.text('Curso de Engenharia de Produção – UFRN', W / 2, y, { align: 'center' });
-  y += 8;
-
-  doc.setDrawColor(26, 58, 110);
-  doc.setLineWidth(0.5);
-  doc.line(ml, y, W - mr, y);
-  y += 8;
-
-  // Dados do aluno
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(26, 58, 110);
-  doc.text('Dados do Aluno', ml, y); y += 6;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(9.5);
-  doc.text(`Nome: ${nome}`, ml, y);
-  doc.text(`Matrícula: ${matricula}`, W / 2, y); y += 6;
-  doc.text(`Turno: ${turno}`, ml, y);
-  doc.text(`Instituição de origem: ${instOrigem}`, W / 2, y); y += 6;
-  doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, ml, y); y += 8;
-
-  doc.line(ml, y, W - mr, y); y += 8;
-
-  // Tabela
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(26, 58, 110);
-  doc.text('Componentes Solicitadas', ml, y); y += 6;
-
-  // Cabeçalho tabela
-  const cols = [90, 45, 55];
-  doc.setFillColor(26, 58, 110);
-  doc.rect(ml, y, cw, 8, 'F');
-  doc.setTextColor(255, 255, 255);
+  var hoje = new Date();
+  var meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   doc.setFontSize(8.5);
-  doc.text('Componente Pretendida (UFRN)', ml + 2, y + 5.5);
-  doc.text('Instituição de Origem', ml + cols[0] + 2, y + 5.5);
-  doc.text('Componente Cursada', ml + cols[0] + cols[1] + 2, y + 5.5);
-  y += 8;
+  doc.text('Natal-RN, ' + hoje.getDate() + ' de ' + meses[hoje.getMonth()] + ' de ' + hoje.getFullYear() + '.', W-mr, y, {align:'right'}); y+=7;
 
-  // Linhas
-  doc.setTextColor(0, 0, 0);
-  pedido.forEach((p, i) => {
-    const fill = i % 2 === 0;
-    if (fill) { doc.setFillColor(240, 244, 255); doc.rect(ml, y, cw, 9, 'F'); }
+  doc.setFont('times','bold'); doc.setFontSize(8.5);
+  doc.text('NOME DO ALUNO: ',ml,y);
+  doc.setFont('times','normal'); doc.text(nome.toUpperCase(),ml+33,y); y+=6;
+  doc.setFont('times','bold'); doc.text('CURSO: ',ml,y);
+  doc.setFont('times','normal'); doc.text('ENGENHARIA DE PRODUÇÃO',ml+14,y);
+  doc.setFont('times','bold'); doc.text('TURNO: ',ml+96,y);
+  doc.setFont('times','normal'); doc.text(turno.toUpperCase(),ml+110,y); y+=6;
+  doc.setFont('times','bold'); doc.text('CADASTRO (MATRICULA): ',ml,y);
+  doc.setFont('times','normal'); doc.text(matricula,ml+44,y);
+  doc.setFont('times','bold'); doc.text('INSTITUICAO DE ORIGEM: ',ml+96,y);
+  doc.setFont('times','normal'); doc.text(instOrig.toUpperCase(),ml+140,y); y+=8;
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    const compLines = doc.splitTextToSize(p.comp, cols[0] - 4);
-    const cursLines = doc.splitTextToSize(p.cursado || 'Componente idêntica', cols[2] - 4);
-    const h = Math.max(compLines.length, cursLines.length) * 4.5 + 3;
+  var cols=[40,50,90];
+  doc.setFillColor(26,58,110); doc.rect(ml,y,cw,7,'F');
+  doc.setTextColor(255,255,255); doc.setFont('times','bold'); doc.setFontSize(7.5);
+  doc.text('REF. A INST. DE ORIGEM',ml+(cols[0]+cols[1])/2,y+4.5,{align:'center'});
+  doc.text('REFERENCIAS RELATIVAS A UFRN',ml+cols[0]+cols[1]+cols[2]/2,y+4.5,{align:'center'}); y+=7;
+  doc.setFillColor(50,80,150);
+  [0,1,2].forEach(function(i){ doc.rect(ml+(i===0?0:i===1?cols[0]:cols[0]+cols[1]),y,cols[i],8,'F'); });
+  doc.setFontSize(6.5);
+  doc.text('INSTITUICAO\nDE ORIGEM',ml+cols[0]/2,y+2.5,{align:'center'});
+  doc.text('NOME DO COMP. CURSADO\n(IDENTICO AO HISTORICO)',ml+cols[0]+cols[1]/2,y+2.5,{align:'center'});
+  doc.text('COMP. CURRICULAR\nA SER IMPLANTADO (UFRN)',ml+cols[0]+cols[1]+cols[2]/2,y+2.5,{align:'center'}); y+=8;
 
-    if (fill) { doc.setFillColor(240, 244, 255); doc.rect(ml, y, cw, h, 'F'); }
-
-    doc.setDrawColor(200, 210, 230);
-    doc.setLineWidth(0.3);
-    doc.rect(ml, y, cols[0], h);
-    doc.rect(ml + cols[0], y, cols[1], h);
-    doc.rect(ml + cols[0] + cols[1], y, cols[2], h);
-
-    doc.text(compLines, ml + 2, y + 4.5);
-    doc.text(p.inst, ml + cols[0] + 2, y + 4.5);
-    doc.text(cursLines, ml + cols[0] + cols[1] + 2, y + 4.5);
+  doc.setTextColor(0,0,0); doc.setFont('times','normal');
+  pedido.forEach(function(p, i){
+    var fill = i%2===0;
+    if(fill) doc.setFillColor(240,244,255); else doc.setFillColor(255,255,255);
+    doc.setDrawColor(180,180,200); doc.setLineWidth(0.2);
+    var cursLines = doc.splitTextToSize(p.label, cols[1]-4);
+    var ufrLines  = doc.splitTextToSize(p.comp_ufrn, cols[2]-4);
+    var h = Math.max(cursLines.length, ufrLines.length)*4+4;
+    doc.rect(ml,y,cols[0],h,'FD');
+    doc.rect(ml+cols[0],y,cols[1],h,'FD');
+    doc.rect(ml+cols[0]+cols[1],y,cols[2],h,'FD');
+    doc.setFontSize(7.5);
+    doc.text(p.inst, ml+cols[0]/2, y+h/2, {align:'center',baseline:'middle'});
+    doc.text(cursLines, ml+cols[0]+2, y+3);
+    doc.text(ufrLines,  ml+cols[0]+cols[1]+2, y+3);
     y += h;
   });
 
-  y += 12;
-  doc.setLineWidth(0.5);
-  doc.setDrawColor(26, 58, 110);
-  doc.line(ml, y, W - mr, y);
-  y += 10;
+  doc.setFillColor(230,235,250); doc.rect(ml,y,cw,10,'FD');
+  doc.setFont('times','bold'); doc.setFontSize(8);
+  doc.text('OBSERVACOES:',ml+2,y+6); y+=18;
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.text('Assinatura do Aluno: ___________________________________', ml, y);
-  y += 16;
+  doc.setDrawColor(150,0,0); doc.setLineWidth(0.3); doc.rect(ml,y,cw,22,'D');
+  doc.setFont('times','bold'); doc.setFontSize(7.5); doc.setTextColor(120,0,0);
+  doc.text('ATENCAO:',ml+3,y+5);
+  doc.setFont('times','normal'); doc.setTextColor(0,0,0); doc.setFontSize(7);
+  var avLines = doc.splitTextToSize(
+    'Este documento e uma proposta gerada automaticamente com base em aproveitamentos previamente registrados. As correspondencias podem estar desatualizadas. O deferimento esta condicionado a analise documental pela Coordenacao do Curso mediante apresentacao de historico escolar e ementas. Este documento nao substitui o protocolo oficial no SIGAA.',
+    cw-6);
+  doc.text(avLines,ml+3,y+10); y+=28;
 
-  doc.setFont('helvetica', 'italic');
-  doc.setFontSize(7.5);
-  doc.setTextColor(150, 150, 150);
-  doc.text('Documento gerado pelo Simulador de Aproveitamentos – Coordenação de Engenharia de Produção / UFRN', W / 2, y, { align: 'center' });
+  doc.setFont('times','normal'); doc.setFontSize(8.5); doc.setTextColor(0,0,0);
+  doc.text('Assinatura do Aluno: ___________________________________________',ml,y); y+=6;
+  doc.setFont('times','italic'); doc.setFontSize(7.5);
+  doc.text('Data: ______ / ______ / ________',ml,y); y+=12;
+  doc.setLineWidth(0.5); doc.setDrawColor(0,0,0); doc.line(ml,y,W-mr,y); y+=4;
+  doc.setFont('times','italic'); doc.setFontSize(6.5); doc.setTextColor(100,100,100);
+  doc.text('Proposta gerada pelo Simulador de Aproveitamentos - Coordenacao do Curso de Engenharia de Producao / UFRN',W/2,y,{align:'center'});
 
-  doc.save(`aproveitamento_${matricula}.pdf`);
+  doc.save('proposta_aproveitamento_' + matricula + '.pdf');
 }
 </script>
 </body>
