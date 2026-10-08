@@ -45,6 +45,13 @@ input:focus,select:focus{outline:none;border-color:#2c4a58;background:#fff}
 
 
 
+
+
+
+
+
+
+
 .badge{font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:12px;white-space:nowrap;margin-left:auto}
 .badge-ok{background:#d4edda;color:#155724}
 .aviso{background:#fff3cd;border-left:4px solid #ffc107;border-radius:6px;padding:9px 13px;font-size:.87rem;color:#856404;margin-top:8px}
@@ -106,57 +113,51 @@ input:focus,select:focus{outline:none;border-color:#2c4a58;background:#fff}
 }
 
 /* Pedido tabela */
-.pedido-tabela { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px; }
-.pedido-tabela th {
-  font-size: 10px; text-transform: uppercase; letter-spacing: .04em;
-  text-align: left; border-bottom: 2px solid #5c7a8a;
-  padding: 5px 8px; font-weight: 700; color: #2c4a58;
-}
-.pedido-tabela td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; font-size: 12px; }
-.pedido-tabela tr:hover td { background: #edf1f3; }
+
+
+
+
 
 .hint { font-size: 10px; color: #666; font-style: italic; margin-top: 3px; display: block; }
 
-.opcao-card.indeferido{background:#fff5f5;border-color:#e57373;cursor:default;opacity:.9}
-.opcao-card.bloqueado{opacity:.4;cursor:default}
-.chk.indeferido{background:#e57373;border-color:#e57373;color:#fff}
-.status-tag.indeferido{background:#fdecea;color:#b71c1c;font-weight:600;font-size:.7rem;padding:2px 8px;border-radius:10px;white-space:nowrap;margin-left:auto}
 
-/* Cores vivas para cards */
+/* Cards de opção */
 .opcao-card{border:1.5px solid #5c7a8a;border-radius:8px;padding:10px 13px;margin-bottom:6px;cursor:pointer;background:#eef4f8;transition:all .15s;display:flex;align-items:center;gap:10px}
 .opcao-card:hover{background:#d6e8f2;border-color:#3a6278}
 .opcao-card.adicionado{background:#d4edda;border-color:#28a745;cursor:default}
 .opcao-card.indeferido{background:#fdecea;border-color:#e57373;cursor:default}
 .opcao-card.bloqueado{opacity:.4;cursor:default}
 
-/* Conjunto em card */
+/* Conjunto */
 .conj-bloco{border:1.5px solid #5c7a8a;border-radius:8px;margin-bottom:6px;overflow:hidden;background:#eef4f8}
 .conj-bloco.bloqueado{opacity:.4}
 .conj-bloco.indeferido{background:#fdecea;border-color:#e57373}
 .conj-rotulo{background:#d0e6f0;padding:7px 13px;font-size:.78rem;font-weight:700;color:#2c4a58;display:flex;align-items:center;gap:6px}
-.conj-rotulo.adicionado{background:#d4edda;color:#155724}
 .conj-rotulo.indeferido{background:#fdecea;color:#b71c1c}
-
-/* Pedido com lata de lixo */
-.pedido-item{background:#eef4f8;border-left:4px solid #5c7a8a;border-radius:6px;padding:9px 13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:flex-start}
-.btn-rem{background:none;border:none;cursor:pointer;color:#c0392b;font-size:1.2rem;padding:0 3px;line-height:1;flex-shrink:0}
-.btn-rem:hover{color:#e74c3c}
+.conj-itens{padding:6px 10px}
+.conj-item{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:.85rem;border-bottom:1px solid #dce8ee;cursor:pointer}
+.conj-item:last-child{border-bottom:none}
+.conj-item:hover{background:#d6e8f2}
+.conj-item.selecionado{font-weight:600;color:#155724}
 
 /* chk */
 .chk{width:16px;height:16px;border:2px solid #aaa;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold}
 .chk.ok{background:#28a745;border-color:#28a745;color:#fff}
 .chk.indeferido{background:#e57373;border-color:#e57373;color:#fff}
 
-/* Status tags */
+/* Status */
 .status-tag{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;margin-left:auto;color:#555}
 .status-tag.ok{background:#d4edda;color:#155724}
 .status-tag.indeferido{background:#fdecea;color:#b71c1c}
 
-.conj-itens{padding:6px 10px}
-.conj-item{display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:.85rem;border-bottom:1px solid #dce8ee;cursor:pointer}
-.conj-item:last-child{border-bottom:none}
-.conj-item:hover{background:#d6e8f2}
-.conj-item.selecionado{font-weight:600;color:#155724}
+/* Cartões do pedido */
+.pedido-cards{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.pedido-card{background:#d4edda;border:1.5px solid #28a745;border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.pedido-card-info{flex:1}
+.pedido-card-comp{font-size:.88rem;font-weight:700;color:#155724}
+.pedido-card-sub{font-size:.78rem;color:#2e6b3e;margin-top:3px;line-height:1.4}
+.pedido-card-btn{background:none;border:none;cursor:pointer;color:#c0392b;font-size:1.1rem;padding:0 3px;line-height:1;flex-shrink:0}
+.pedido-card-btn:hover{color:#e74c3c}
 </style>
 </head>
 <body>
@@ -404,9 +405,9 @@ function renderResultado(){
         if(opcoes.length>1) html+='<div class="opcao-label">Opção '+op.num_opcao+'</div>';
         if(op.requer_conjunto){
           var sel=conjSelecionados[op.id_opcao]||{};
-          html+='<div class="conj-bloco'+(op.resultado==="INDEFERIDO"?' indeferido':bloqueado?' bloqueado':'')+'"><div class="conj-rotulo'+(op.resultado==="INDEFERIDO"?' indeferido':'')+'">'+'<span>Necessário cursar as '+op.componentes.length+' disciplinas abaixo</span>';
+          html+='<div class="conj-bloco'+(bloqueado?' bloqueado':'')+'"><div class="conj-rotulo"><span>Necessário cursar as '+op.componentes.length+' disciplinas abaixo</span>';
           if(jaAdicionado) html+=' <span class="status-tag ok">Adicionado</span>';
-          else if(op.resultado==='INDEFERIDO') html+=' <span class="status-tag indeferido">Indeferido</span>';
+          else if(op.resultado==='INDEFERIDO') html+=' <span class="status-tag indeferido">Indeferido em processos anteriores</span>';
           else if(bloqueado) html+=' <span class="status-tag">Indisponível</span>';
           html+='</div>';
           op.componentes.forEach(function(comp,ci){
@@ -419,11 +420,11 @@ function renderResultado(){
           var comp=op.componentes[0];
           var indeferido=op.resultado==='INDEFERIDO';
           var bloqueadoFinal=bloqueado||indeferido;
-          html+='<div class="opcao-card'+(jaAdicionado?' adicionado':indeferido?' indeferido':bloqueado?' bloqueado':'')+'" data-type="simples" data-opcao-id="'+op.id_opcao+'"'+((jaAdicionado||bloqueadoFinal)?' style="cursor:default"':'')+'>'+
+          html+='<div class="opcao-card'+(jaAdicionado?' adicionado':indeferido?' indeferido':bloqueado?' bloqueado':'')+'" data-type="simples" data-opcao-id="'+op.id_opcao+'"'+((jaAdicionado||bloqueado)?' style="cursor:default"':'')+'>'+
             '<div class="chk'+(jaAdicionado?' ok':indeferido?' indeferido':'')+'">'+(jaAdicionado?'&#x2713;':indeferido?'&#x2717;':'')+' </div> '+
             '<span>'+hE(comp)+'</span>'+
-            (jaAdicionado?'<span class="status-tag ok">Adicionado</span>':'')+
-            (indeferido?'<span class="status-tag indeferido"> Indeferido em processos anteriores</span>':bloqueado?'<span class="status-tag">Indisponivel</span>':'')+
+            (jaAdicionado?' <span class="status-tag ok">Adicionado</span>':'')+
+            (indeferido?' <span class="status-tag indeferido">Indeferido em processos anteriores</span>':bloqueado?' <span class="status-tag">Indisponível</span>':'')+
             '</div>';
         }
       });
@@ -479,25 +480,30 @@ function removerPrecedente(idx){
 function renderPrecedente(){
   var el=document.getElementById('lista-precedente');
   if(!pedidoPrecedente.length){ el.innerHTML='<p class="pedido-vazio">Nenhuma componente adicionada.</p>'; return; }
-  var html='<table class="pedido-tabela"><thead><tr><th>Componente (UFRN)</th><th>Instituicao</th><th>Disciplina cursada</th><th></th></tr></thead><tbody>';
+  var html='<div class="pedido-cards">';
   pedidoPrecedente.forEach(function(p,i){
-    html+='<tr><td>'+hE(p.comp_ufrn)+'</td><td>'+hE(p.inst)+'</td><td>'+hE(p.label)+'</td>'+
-          '<td><button class="btn-rem" data-idx="'+i+'" title="Remover">✕</button></td></tr>';
+    html+='<div class="pedido-card">'
+         +'<div class="pedido-card-info">'
+         +'<div class="pedido-card-comp">'+hE(p.comp_ufrn)+'</div>'
+         +'<div class="pedido-card-sub">'+hE(p.inst)+' — '+hE(p.label)+'</div>'
+         +'</div>'
+         +'<button class="pedido-card-btn" data-idx="'+i+'" title="Remover">✕</button>'
+         +'</div>';
   });
-  html+='</tbody></table>';
+  html+='</div>';
   el.innerHTML=html;
-  el.querySelectorAll('.btn-rem').forEach(function(btn){
+  el.querySelectorAll('.pedido-card-btn').forEach(function(btn){
     btn.addEventListener('click',function(){ removerPrecedente(parseInt(btn.dataset.idx,10)); });
   });
 }
 
-// ── Novos casos ───────────────────────────────────────────────────────────
+
 function adicionarNovoCaso(){
   var compUfrn=document.getElementById('nc-comp-ufrn').value.trim();
   var inst=document.getElementById('nc-inst').value.trim();
   var disc=document.getElementById('nc-disc').value.trim();
   var ch=document.getElementById('nc-ch').value.trim();
-  if(!compUfrn||!inst||!disc){ alert('Preencha a componente UFRN, a instituicao e a disciplina cursada.'); return; }
+  if(!compUfrn||!inst||!disc){ alert('Preencha a componente UFRN, a instituição e a disciplina cursada.'); return; }
   pedidoNovos.push({comp_ufrn:compUfrn,inst:inst,disc:disc,ch:ch});
   renderNovos();
   document.getElementById('nc-comp-ufrn').value='';
@@ -505,25 +511,28 @@ function adicionarNovoCaso(){
   document.getElementById('nc-disc').value='';
   document.getElementById('nc-ch').value='';
 }
-
 function removerNovo(idx){ pedidoNovos.splice(idx,1); renderNovos(); }
 
 function renderNovos(){
   var el=document.getElementById('lista-novos');
   if(!pedidoNovos.length){ el.innerHTML='<p class="pedido-vazio">Nenhum caso adicionado.</p>'; return; }
-  var html='<table class="pedido-tabela"><thead><tr><th>Componente (UFRN)</th><th>Instituicao</th><th>Disciplina cursada (conforme historico)</th><th>CH</th><th></th></tr></thead><tbody>';
+  var html='<div class="pedido-cards">';
   pedidoNovos.forEach(function(p,i){
-    html+='<tr><td>'+hE(p.comp_ufrn)+'</td><td>'+hE(p.inst)+'</td><td>'+hE(p.disc)+'</td><td>'+hE(p.ch)+'h</td>'+
-          '<td><button class="btn-rem" data-idx="'+i+'" title="Remover">✕</button></td></tr>';
+    html+='<div class="pedido-card" style="background:#e8f4ff;border-color:#5c7a8a">'
+         +'<div class="pedido-card-info">'
+         +'<div class="pedido-card-comp" style="color:#2c4a58">'+hE(p.comp_ufrn)+'</div>'
+         +'<div class="pedido-card-sub" style="color:#3a6278">'+hE(p.inst)+(p.ch?' — '+hE(p.ch)+'h':'')+' — '+hE(p.disc)+'</div>'
+         +'</div>'
+         +'<button class="pedido-card-btn" data-idx="'+i+'" title="Remover">✕</button>'
+         +'</div>';
   });
-  html+='</tbody></table>';
+  html+='</div>';
   el.innerHTML=html;
-  el.querySelectorAll('.btn-rem').forEach(function(btn){
+  el.querySelectorAll('.pedido-card-btn').forEach(function(btn){
     btn.addEventListener('click',function(){ removerNovo(parseInt(btn.dataset.idx,10)); });
   });
 }
 
-// ── Urgência ──────────────────────────────────────────────────────────────
 function toggleUrgencia(){
   var extra=document.getElementById('urgencia-extra');
   extra.className='urgencia-extra'+(document.getElementById('chk-urgencia').checked?' visible':'');
@@ -538,34 +547,34 @@ function gerarPDF(){
   var urgente=document.getElementById('chk-urgencia').checked;
   var orientNome=document.getElementById('orientador-nome').value.trim();
 
-  if(!nome||!matricula){ alert('Preencha nome e matricula antes de gerar o PDF.'); return; }
+  if(!nome||!matricula){ alert('Preencha nome e matr\u00edcula antes de gerar o PDF.'); return; }
   if(!pedidoPrecedente.length&&!pedidoNovos.length){ alert('Adicione ao menos uma componente ao requerimento.'); return; }
 
   var doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
   var W=210,ml=20,mr=20,cw=W-ml-mr;
   var y=18;
 
-  // Cabeçalho
+  // Cabe\u00e7alho
   doc.setFont('times','normal'); doc.setFontSize(9); doc.setTextColor(0,0,0);
-  doc.text('MINISTERIO DA EDUCACAO',W/2,y,{align:'center'}); y+=4.5;
+  doc.text('MINIST\u00c9RIO DA EDUCA\u00c7\u00c3O',W/2,y,{align:'center'}); y+=4.5;
   doc.text('UNIVERSIDADE FEDERAL DO RIO GRANDE DO NORTE',W/2,y,{align:'center'}); y+=4.5;
-  doc.text('COORDENACAO DO CURSO ENGENHARIA DE PRODUCAO',W/2,y,{align:'center'}); y+=7;
+  doc.text('COORDENA\u00c7\u00c3O DO CURSO DE ENGENHARIA DE PRODU\u00c7\u00c3O',W/2,y,{align:'center'}); y+=7;
   doc.setFont('times','bold'); doc.setFontSize(11);
   doc.text('REQUERIMENTO DE APROVEITAMENTO DE ESTUDOS',W/2,y,{align:'center'}); y+=5;
   if(urgente){
     doc.setFont('times','bold'); doc.setFontSize(9); doc.setTextColor(150,0,0);
-    doc.text('URGENTE — IMPACTO NA MATRICULA DO SEMESTRE ATUAL',W/2,y,{align:'center'}); y+=5;
+    doc.text('URGENTE \u2014 IMPACTO NA MAT\u00cdCULA DO SEMESTRE ATUAL',W/2,y,{align:'center'}); y+=5;
     doc.setTextColor(0,0,0);
   }
   doc.setDrawColor(0); doc.setLineWidth(0.5); doc.line(ml,y,W-mr,y); y+=3;
   doc.setFont('times','italic'); doc.setFontSize(8); doc.setTextColor(80,80,80);
-  var textoGuia = doc.splitTextToSize('Este documento orienta o preenchimento do Pedido de Aproveitamento de Estudos no SIGAA. As informacoes aqui consolidadas tem como objetivo agilizar a analise pela Coordenacao do Curso, reduzindo o tempo de tramitacao do processo.', cw);
-  doc.text(textoGuia, W/2, y+3, {align:'center'});
-  doc.setTextColor(0,0,0); y += textoGuia.length * 4 + 5;
+  var textoGuia=doc.splitTextToSize('Este documento orienta o preenchimento do Pedido de Aproveitamento de Estudos no SIGAA. As informa\u00e7\u00f5es aqui consolidadas t\u00eam como objetivo agilizar a an\u00e1lise pela Coordena\u00e7\u00e3o do Curso, reduzindo o tempo de tramita\u00e7\u00e3o do processo.',cw);
+  doc.text(textoGuia,W/2,y+3,{align:'center'});
+  doc.setTextColor(0,0,0); y+=textoGuia.length*4+7;
 
   // Data
   var hoje=new Date();
-  var meses=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var meses=['janeiro','fevereiro','mar\u00e7o','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   doc.setFont('times','normal'); doc.setFontSize(9);
   doc.text('Natal-RN, '+hoje.getDate()+' de '+meses[hoje.getMonth()]+' de '+hoje.getFullYear()+'.',W-mr,y,{align:'right'}); y+=8;
 
@@ -573,39 +582,37 @@ function gerarPDF(){
   doc.setLineWidth(0.3); doc.setDrawColor(150,150,150); doc.line(ml,y,W-mr,y); y+=5;
   doc.setFont('times','bold'); doc.setFontSize(9);
   doc.text('NOME DO ALUNO:',ml,y); doc.setFont('times','normal'); doc.text(nome.toUpperCase(),ml+36,y); y+=6;
-  doc.setFont('times','bold'); doc.text('CURSO:',ml,y); doc.setFont('times','normal'); doc.text('ENGENHARIA DE PRODUCAO',ml+15,y);
+  doc.setFont('times','bold'); doc.text('CURSO:',ml,y); doc.setFont('times','normal'); doc.text('ENGENHARIA DE PRODU\u00c7\u00c3O',ml+15,y);
   doc.setFont('times','bold'); doc.text('TURNO:',ml+100,y); doc.setFont('times','normal'); doc.text(turno.toUpperCase(),ml+115,y); y+=6;
-  doc.setFont('times','bold'); doc.text('MATRICULA:',ml,y); doc.setFont('times','normal'); doc.text(matricula,ml+22,y);
+  doc.setFont('times','bold'); doc.text('MAT\u00cdCULA:',ml,y); doc.setFont('times','normal'); doc.text(matricula,ml+22,y);
   doc.setFont('times','bold'); doc.text('INST. DE ORIGEM:',ml+100,y); doc.setFont('times','normal'); doc.text(instOrig.toUpperCase(),ml+135,y); y+=7;
-  doc.setLineWidth(0.3); doc.line(ml,y,W-mr,y); y+=6;
+  doc.setLineWidth(0.3); doc.setDrawColor(0); doc.line(ml,y,W-mr,y); y+=7;
 
-  // Larguras: inst=38, cursada=60, UFRN=72 (total=170=cw)
   var c0=38,c1=60,c2=cw-c0-c1;
 
-  // Seção I — Precedente
+  // Se\u00e7\u00e3o I
   if(pedidoPrecedente.length>0){
     doc.setFont('times','bold'); doc.setFontSize(9); doc.setTextColor(0,0,0);
-    doc.text('I. SOLICITACAO COM BASE EM PRECEDENTE',ml,y); y+=4;
+    doc.text('I. SOLICITA\u00c7\u00c3O COM BASE EM PRECEDENTE',ml,y); y+=4;
     doc.setFont('times','italic'); doc.setFontSize(7.5); doc.setTextColor(80,80,80);
-    doc.text('Equivalencias previamente homologadas pela Coordenacao em casos anteriores.',ml,y); y+=5;
-    doc.setTextColor(0,0,0);
+    doc.text('Equival\u00eancias previamente homologadas pela Coordena\u00e7\u00e3o em casos anteriores.',ml,y); y+=6;
+    doc.setTextColor(0,0,0); doc.setLineWidth(0.4); doc.setDrawColor(0);
 
-    doc.setLineWidth(0.4); doc.setDrawColor(0);
+    // Cabe\u00e7alho duplo
     doc.rect(ml,y,c0+c1,7); doc.rect(ml+c0+c1,y,c2,7);
     doc.setFont('times','bold'); doc.setFontSize(7.5);
-    doc.text('REF. A INST. DE ORIGEM',ml+(c0+c1)/2,y+4.5,{align:'center'});
-    doc.text('REFERENCIAS RELATIVAS A UFRN',ml+c0+c1+c2/2,y+4.5,{align:'center'}); y+=7;
+    doc.text('REF. \u00c0 INST. DE ORIGEM',ml+(c0+c1)/2,y+4.5,{align:'center'});
+    doc.text('REFER\u00caNCIAS RELATIVAS \u00c0 UFRN',ml+c0+c1+c2/2,y+4.5,{align:'center'}); y+=7;
     doc.rect(ml,y,c0,9); doc.rect(ml+c0,y,c1,9); doc.rect(ml+c0+c1,y,c2,9);
     doc.setFontSize(6.5);
-    doc.text('INSTITUICAO\nDE ORIGEM',ml+c0/2,y+3,{align:'center'});
-    doc.text('NOME DO COMP. CURSADO\n(IDENTICO AO HISTORICO)',ml+c0+c1/2,y+3,{align:'center'});
+    doc.text('INSTITUI\u00c7\u00c3O\nDE ORIGEM',ml+c0/2,y+3,{align:'center'});
+    doc.text('NOME DO COMP. CURSADO\n(ID\u00caNTICO AO HIST\u00d3RICO)',ml+c0+c1/2,y+3,{align:'center'});
     doc.text('NOME DO COMP. CURRICULAR\nA SER IMPLANTADO (UFRN)',ml+c0+c1+c2/2,y+3,{align:'center'}); y+=9;
 
     doc.setFont('times','normal'); doc.setFontSize(7.5);
     pedidoPrecedente.forEach(function(p,i){
       if(i%2===0) doc.setFillColor(248,248,248); else doc.setFillColor(255,255,255);
       doc.setLineWidth(0.2); doc.setDrawColor(150,150,150);
-      doc.setFontSize(7.5);
       var instL=doc.splitTextToSize(p.inst,c0-3);
       var cursL=doc.splitTextToSize(p.label,c1-4);
       var ufrL=doc.splitTextToSize(p.comp_ufrn,c2-4);
@@ -616,81 +623,85 @@ function gerarPDF(){
       doc.text(cursL,ml+c0+2,y+lh); doc.text(ufrL,ml+c0+c1+2,y+lh);
       y+=h;
     });
-    y+=6;
+    y+=8;
   }
 
-  // Seção II — Novos casos
+  // Se\u00e7\u00e3o II
   if(pedidoNovos.length>0){
     doc.setFont('times','bold'); doc.setFontSize(9); doc.setTextColor(0,0,0);
-    doc.text('II. REQUERIMENTO DE APRECIACAO DE EQUIVALENCIA',ml,y); y+=4;
+    doc.text('II. REQUERIMENTO DE APRECIA\u00c7\u00c3O DE EQUIVAL\u00caNCIA',ml,y); y+=4;
     doc.setFont('times','italic'); doc.setFontSize(7.5); doc.setTextColor(80,80,80);
-    doc.text('Casos sem precedente registrado. Anexar historico escolar e ementa de cada disciplina.',ml,y); y+=5;
-    doc.setTextColor(0,0,0);
+    doc.text('Casos sem precedente registrado. Anexar hist\u00f3rico escolar e ementa de cada disciplina.',ml,y); y+=6;
+    doc.setTextColor(0,0,0); doc.setLineWidth(0.4); doc.setDrawColor(0);
 
-    var d0=42,d1=52,d2=15,d3=cw-d0-d1-d2;
-    doc.setLineWidth(0.4); doc.setDrawColor(0);
-    doc.setFillColor(26,58,110); doc.rect(ml,y,cw,7,'F');
-    doc.setTextColor(255,255,255); doc.setFont('times','bold'); doc.setFontSize(7);
-    doc.text('INSTITUICAO DE ORIGEM',ml+d0/2,y+4.5,{align:'center'});
-    doc.text('DISCIPLINA CURSADA (CONFORME HISTORICO)',ml+d0+d1/2,y+4.5,{align:'center'});
-    doc.text('CH',ml+d0+d1+d2/2,y+4.5,{align:'center'});
-    doc.text('COMPONENTE UFRN PRETENDIDA',ml+d0+d1+d2+d3/2,y+4.5,{align:'center'}); y+=7;
+    var d0=40,d1=58,d2=14,d3=cw-d0-d1-d2;
+    doc.rect(ml,y,d0,8); doc.rect(ml+d0,y,d1,8);
+    doc.rect(ml+d0+d1,y,d2,8); doc.rect(ml+d0+d1+d2,y,d3,8);
+    doc.setFont('times','bold'); doc.setFontSize(7);
+    doc.text('INSTITUI\u00c7\u00c3O DE ORIGEM',ml+d0/2,y+5,{align:'center'});
+    doc.text('DISCIPLINA CURSADA (CONFORME HIST\u00d3RICO)',ml+d0+d1/2,y+5,{align:'center'});
+    doc.text('CH',ml+d0+d1+d2/2,y+5,{align:'center'});
+    doc.text('COMPONENTE UFRN PRETENDIDA',ml+d0+d1+d2+d3/2,y+5,{align:'center'}); y+=8;
 
-    doc.setTextColor(0,0,0); doc.setFont('times','normal');
+    doc.setFont('times','normal'); doc.setFontSize(7.5);
     pedidoNovos.forEach(function(p,i){
       if(i%2===0) doc.setFillColor(248,248,248); else doc.setFillColor(255,255,255);
       doc.setLineWidth(0.2); doc.setDrawColor(150,150,150);
-      var discL=doc.splitTextToSize(p.disc,d1-3);
-      var ufrL=doc.splitTextToSize(p.comp_ufrn,d3-3);
-      var h=Math.max(discL.length,ufrL.length)*4+4;
+      doc.setFontSize(7.5);
+      var instL=doc.splitTextToSize(p.inst,d0-3);
+      var cursLines=doc.splitTextToSize(p.disc,d1-4);
+      var ufrLines=doc.splitTextToSize(p.comp_ufrn,d3-4);
+      var lh2=4.5;
+      var h=Math.max(instL.length,cursLines.length,ufrLines.length)*lh2+3;
       doc.rect(ml,y,d0,h,'FD'); doc.rect(ml+d0,y,d1,h,'FD');
       doc.rect(ml+d0+d1,y,d2,h,'FD'); doc.rect(ml+d0+d1+d2,y,d3,h,'FD');
-      doc.setFontSize(7.5);
-      doc.text(p.inst,ml+d0/2,y+h/2,{align:'center',baseline:'middle'});
-      doc.text(discL,ml+d0+2,y+3);
+      doc.text(instL,ml+d0/2,y+h/2,{align:'center',baseline:'middle'});
+      doc.text(cursLines,ml+d0+2,y+lh2);
       doc.text((p.ch?p.ch+'h':''),ml+d0+d1+d2/2,y+h/2,{align:'center',baseline:'middle'});
-      doc.text(ufrL,ml+d0+d1+d2+2,y+3);
+      doc.text(ufrLines,ml+d0+d1+d2+2,y+lh2);
       y+=h;
     });
-    y+=6;
+    y+=8;
   }
 
-  // Observações
+  // Observa\u00e7\u00f5es
   doc.setFillColor(245,245,245); doc.setLineWidth(0.3); doc.setDrawColor(0);
   doc.rect(ml,y,cw,10,'FD');
   doc.setFont('times','bold'); doc.setFontSize(8.5);
-  doc.text('OBSERVACOES:',ml+2,y+6.5); y+=18;
+  doc.text('OBSERVA\u00c7\u00d5ES:',ml+2,y+6.5); y+=16;
 
-  // Urgência — assinatura do orientador
+  // Urg\u00eancia
   if(urgente){
-    doc.setLineWidth(0.4); doc.setDrawColor(150,0,0); doc.rect(ml,y,cw,26);
+    var decl=doc.splitTextToSize('Declaro, na condi\u00e7\u00e3o de orientador acad\u00eamico do aluno acima identificado, que as solicita\u00e7\u00f5es listadas neste requerimento impactam diretamente sua matr\u00edcula no semestre atual, e confirmo a necessidade de aprecia\u00e7\u00e3o em regime de urg\u00eancia.',cw-8);
+    var sec3h=8+decl.length*4.5+16;
+    doc.setLineWidth(0.4); doc.setDrawColor(150,0,0); doc.rect(ml,y,cw,sec3h);
     doc.setFont('times','bold'); doc.setFontSize(8.5); doc.setTextColor(150,0,0);
-    doc.text('III. DECLARACAO DE URGENCIA',ml+3,y+6);
+    doc.text('III. DECLARA\u00c7\u00c3O DE URG\u00caNCIA',ml+3,y+6);
     doc.setFont('times','normal'); doc.setFontSize(8); doc.setTextColor(0,0,0);
-    doc.text('Declaro que as solicitacoes acima influenciam minha matricula no semestre atual e solicito apreciacao em regime de urgencia.',ml+3,y+12);
+    doc.text(decl,ml+3,y+12);
+    var yDecl=y+12+decl.length*4.5;
     doc.setFont('times','bold'); doc.setFontSize(8);
-    doc.text('Orientador academico:',ml+3,y+19);
+    doc.text('Orientador acad\u00eamico:',ml+3,yDecl+5);
     doc.setFont('times','normal');
-    doc.text((orientNome||'___________________________________'),ml+46,y+19);
-    doc.text('Assinatura do orientador: ___________________________________________',ml+3,y+24);
-    y+=32;
+    doc.text((orientNome||'___________________________________'),ml+48,yDecl+5);
+    doc.text('Assinatura do orientador: ___________________________________________',ml+3,yDecl+11);
+    y+=sec3h+6;
   }
 
-  // Assinatura do aluno
+  // Assinatura
   doc.setFont('times','normal'); doc.setFontSize(9); doc.setTextColor(0,0,0);
   doc.text('Assinatura do Aluno: ___________________________________________',ml,y); y+=6;
   doc.setFont('times','italic'); doc.setFontSize(8);
-  doc.text('Data: ______ / ______ / ________',ml,y); y+=14;
+  doc.text('Data: ______ / ______ / ________',ml,y); y+=12;
 
-  // Rodapé
+  // Rodap\u00e9
   doc.setLineWidth(0.3); doc.setDrawColor(0); doc.line(ml,y,W-mr,y); y+=4;
   doc.setFont('times','italic'); doc.setFontSize(7); doc.setTextColor(100,100,100);
-  doc.text('Requerimento gerado pelo sistema de apoio da Coordenacao do Curso de Engenharia de Producao / UFRN',W/2,y,{align:'center'}); y+=4;
-  doc.text('Este documento orienta o preenchimento do pedido no SIGAA. As equivalencias com base em precedente podem estar desatualizadas.',W/2,y,{align:'center'});
+  doc.text('Requerimento gerado pelo sistema de apoio da Coordena\u00e7\u00e3o do Curso de Engenharia de Produ\u00e7\u00e3o / UFRN',W/2,y,{align:'center'}); y+=4;
+  doc.text('Este documento orienta o preenchimento do pedido no SIGAA. As equival\u00eancias com base em precedente podem estar desatualizadas.',W/2,y,{align:'center'});
 
   doc.save('requerimento_aproveitamento_'+matricula+'.pdf');
 }
-
 </script>
 </body>
 </html>
