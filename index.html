@@ -124,7 +124,7 @@ input:focus,select:focus{outline:none;border-color:#2c4a58;background:#fff}
 
 .hint { font-size: 10px; color: #666; font-style: italic; margin-top: 3px; display: block; }
 
-.opcao-linha.indeferido{background:#fff5f5;border-left:2px solid #e57373;cursor:default}
+.opcao-linha.indeferido{background:#fff5f5;border-left:3px solid #e57373;cursor:default;opacity:.9}
 </style>
 </head>
 <body>
@@ -374,22 +374,23 @@ function renderResultado(){
           var sel=conjSelecionados[op.id_opcao]||{};
           html+='<div class="conj-bloco'+(bloqueado?' bloqueado':'')+'"><div class="conj-rotulo"><span>Necessario cursar as '+op.componentes.length+' disciplinas abaixo</span>';
           if(jaAdicionado) html+='<span class="status-tag ok">Adicionado</span>';
-          else if(op.resultado==='INDEFERIDO') html+='<span class="status-tag" style="color:#b71c1c;font-weight:600">Negado em processos anteriores</span>';
-          else if(bloqueado) html+='<span class="status-tag">Indisponivel</span>';
+          if(bloqueado)    html+='<span class="status-tag">Indisponivel</span>';
           html+='</div>';
           op.componentes.forEach(function(comp,ci){
             var isSel=sel[ci]||jaAdicionado;
-            html+='<div class="conj-item'+(isSel?' selecionado':'')+'" data-type="conj" data-opcao-id="'+op.id_opcao+'" data-comp-idx="'+ci+'"'+((jaAdicionado||bloqueado)?' style="cursor:default"':'')+'>'+
+            html+='<div class="conj-item'+(isSel?' selecionado':'')+'" data-type="conj" data-opcao-id="'+op.id_opcao+'" data-comp-idx="'+ci+'"'+((jaAdicionado||bloqueadoFinal)?' style="cursor:default"':'')+'>'+
               '<div class="chk'+(isSel?' ok':'')+'">'+( isSel?'&#x2713;':'')+' </div>'+hE(comp)+'</div>';
           });
           html+='</div>';
         } else {
           var comp=op.componentes[0];
-          html+='<div class="opcao-linha'+(jaAdicionado?' adicionado':bloqueado?' bloqueado':'')+'" data-type="simples" data-opcao-id="'+op.id_opcao+'"'+((jaAdicionado||bloqueado)?' style="cursor:default"':'')+'>'+
+          var indeferido=op.resultado==='INDEFERIDO';
+          var bloqueadoFinal=bloqueado||indeferido;
+          html+='<div class="opcao-linha'+(jaAdicionado?' adicionado':indeferido?' indeferido':bloqueado?' bloqueado':'')+'" data-type="simples" data-opcao-id="'+op.id_opcao+'"'+((jaAdicionado||bloqueado)?' style="cursor:default"':'')+'>'+
             '<div class="chk'+(jaAdicionado?' ok':'')+'">'+( jaAdicionado?'&#x2713;':'')+' </div>'+
             '<span>'+hE(comp)+'</span>'+
             (jaAdicionado?'<span class="status-tag ok">Adicionado</span>':'')+
-            (bloqueado?'<span class="status-tag">Indisponivel</span>':'')+
+            (indeferido?'<span class="status-tag" style="background:#fdecea;color:#b71c1c;font-weight:600">Indeferido</span>':bloqueado?'<span class="status-tag">Indisponivel</span>':'')+
             '</div>';
         }
       });
@@ -412,7 +413,7 @@ function renderResultado(){
     var inst=card.closest('.inst-bloco').querySelector('.inst-nome').textContent.trim();
     if(tipo==='simples'){
       var opClicada=encontrarOpcao(id_opcao);
-      if(opClicada && opClicada.resultado==='INDEFERIDO') return;
+      if(opClicada&&opClicada.resultado==='INDEFERIDO') return;
       if(compJaAdicionada(compSelecionada)) return;
       pedidoPrecedente.push({comp_ufrn:compSelecionada,inst:inst,id_opcao:id_opcao,componentes:op.componentes,label:op.componentes[0]});
       renderPrecedente(); renderResultado();
