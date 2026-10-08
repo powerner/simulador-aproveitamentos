@@ -329,6 +329,14 @@ function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300
 function hE(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── Chips ─────────────────────────────────────────────────────────────────
+function limparBusca(){
+  compSelecionada=null;
+  conjSelecionados={};
+  document.getElementById('busca').value='';
+  document.getElementById('resultado').innerHTML='';
+  document.getElementById('dropdown').classList.remove('open');
+}
+
 function renderChips(){
   var wrap = document.getElementById('inst-lista');
   var html = '';
@@ -447,10 +455,10 @@ function renderResultado(){
     var inst=card.closest('.inst-bloco').querySelector('.inst-nome').textContent.trim();
     if(tipo==='simples'){
       var opClicada=encontrarOpcao(id_opcao);
-      if(opClicada&&opClicada.resultado==='INDEFERIDO') return;
+      if(opClicada&&opClicada.resultado==='INDEFERIDO'){ limparBusca(); return; }
       if(compJaAdicionada(compSelecionada)) return;
       pedidoPrecedente.push({comp_ufrn:compSelecionada,inst:inst,id_opcao:id_opcao,componentes:op.componentes,label:op.componentes[0]});
-      renderPrecedente(); renderResultado();
+      renderPrecedente(); limparBusca();
     } else if(tipo==='conj'){
       if(card.style.cursor==='default') return;
       if(compJaAdicionada(compSelecionada)&&!pedidoPrecedente.some(function(p){ return p.id_opcao===id_opcao; })) return;
@@ -461,7 +469,7 @@ function renderResultado(){
       if(todos){
         if(!pedidoPrecedente.some(function(p){ return p.id_opcao===id_opcao; })){
           pedidoPrecedente.push({comp_ufrn:compSelecionada,inst:inst,id_opcao:id_opcao,componentes:op.componentes,label:op.componentes.join(' + ')});
-          renderPrecedente();
+          renderPrecedente(); limparBusca();
         }
       } else {
         var idx=pedidoPrecedente.findIndex(function(p){ return p.id_opcao===id_opcao; });
@@ -469,7 +477,7 @@ function renderResultado(){
       }
       renderResultado();
     }
-  },{once:true});
+  });
 }
 
 function removerPrecedente(idx){
@@ -598,31 +606,47 @@ function gerarPDF(){
     doc.text('Equival\u00eancias previamente homologadas pela Coordena\u00e7\u00e3o em casos anteriores.',ml,y); y+=6;
     doc.setTextColor(0,0,0); doc.setLineWidth(0.4); doc.setDrawColor(0);
 
-    // Cabe\u00e7alho duplo
-    doc.rect(ml,y,c0+c1,7); doc.rect(ml+c0+c1,y,c2,7);
+    // Tabela ABNT — linha grossa superior, cabeçalho em negrito, sem zebra, sem bordas verticais
+    doc.setLineWidth(0.6); doc.setDrawColor(0);
+    doc.line(ml,y,W-mr,y); // linha superior grossa
+    y+=1;
+    // Linha 1 do cabeçalho: grupos
     doc.setFont('times','bold'); doc.setFontSize(7.5);
-    doc.text('REF. \u00c0 INST. DE ORIGEM',ml+(c0+c1)/2,y+4.5,{align:'center'});
-    doc.text('REFER\u00caNCIAS RELATIVAS \u00c0 UFRN',ml+c0+c1+c2/2,y+4.5,{align:'center'}); y+=7;
-    doc.rect(ml,y,c0,9); doc.rect(ml+c0,y,c1,9); doc.rect(ml+c0+c1,y,c2,9);
+    doc.text('REF. À INST. DE ORIGEM',ml+(c0+c1)/2,y+4.5,{align:'center'});
+    doc.line(ml+c0+c1,y,ml+c0+c1,y+7); // separador vertical entre grupos
+    doc.text('REFERÊNCIAS RELATIVAS À UFRN',ml+c0+c1+c2/2,y+4.5,{align:'center'}); y+=7;
+    doc.setLineWidth(0.3); doc.line(ml,y,W-mr,y); // linha entre cabeçalhos
+    y+=1;
+    // Linha 2 do cabeçalho: colunas
     doc.setFontSize(6.5);
-    doc.text('INSTITUI\u00c7\u00c3O\nDE ORIGEM',ml+c0/2,y+3,{align:'center'});
-    doc.text('NOME DO COMP. CURSADO\n(ID\u00caNTICO AO HIST\u00d3RICO)',ml+c0+c1/2,y+3,{align:'center'});
-    doc.text('NOME DO COMP. CURRICULAR\nA SER IMPLANTADO (UFRN)',ml+c0+c1+c2/2,y+3,{align:'center'}); y+=9;
+    doc.text('INSTITUIÇÃO\nDE ORIGEM',ml+c0/2,y+2.5,{align:'center'});
+    doc.line(ml+c0,y,ml+c0,y+9); // separador
+    doc.text('NOME DO COMP. CURSADO\n(IDÊNTICO AO HISTÓRICO)',ml+c0+c1/2,y+2.5,{align:'center'});
+    doc.line(ml+c0+c1,y,ml+c0+c1,y+9);
+    doc.text('NOME DO COMP. CURRICULAR\nA SER IMPLANTADO (UFRN)',ml+c0+c1+c2/2,y+2.5,{align:'center'}); y+=9;
+    doc.setLineWidth(0.4); doc.line(ml,y,W-mr,y); // linha após cabeçalho
+    y+=2;
 
     doc.setFont('times','normal'); doc.setFontSize(7.5);
     pedidoPrecedente.forEach(function(p,i){
-      if(i%2===0) doc.setFillColor(248,248,248); else doc.setFillColor(255,255,255);
-      doc.setLineWidth(0.2); doc.setDrawColor(150,150,150);
+      doc.setLineWidth(0.2); doc.setDrawColor(180,180,180);
       var instL=doc.splitTextToSize(p.inst,c0-3);
       var cursL=doc.splitTextToSize(p.label,c1-4);
       var ufrL=doc.splitTextToSize(p.comp_ufrn,c2-4);
       var lh=4.5;
       var h=Math.max(instL.length,cursL.length,ufrL.length)*lh+3;
-      doc.rect(ml,y,c0,h,'FD'); doc.rect(ml+c0,y,c1,h,'FD'); doc.rect(ml+c0+c1,y,c2,h,'FD');
-      doc.text(instL,ml+c0/2,y+h/2,{align:'center',baseline:'middle'});
-      doc.text(cursL,ml+c0+2,y+lh); doc.text(ufrL,ml+c0+c1+2,y+lh);
+      doc.setDrawColor(0);
+      doc.text(instL,ml+c0/2,y+lh,{align:'center'});
+      doc.line(ml+c0,y,ml+c0,y+h);
+      doc.text(cursL,ml+c0+2,y+lh);
+      doc.line(ml+c0+c1,y,ml+c0+c1,y+h);
+      doc.text(ufrL,ml+c0+c1+2,y+lh);
       y+=h;
+      doc.setLineWidth(0.2); doc.setDrawColor(180,180,180);
+      doc.line(ml,y,W-mr,y); // linha entre linhas
     });
+    doc.setLineWidth(0.6); doc.setDrawColor(0);
+    doc.line(ml,y,W-mr,y); // linha inferior grossa
     y+=8;
   }
 
@@ -635,33 +659,39 @@ function gerarPDF(){
     doc.setTextColor(0,0,0); doc.setLineWidth(0.4); doc.setDrawColor(0);
 
     var d0=40,d1=58,d2=14,d3=cw-d0-d1-d2;
-    doc.rect(ml,y,d0,8); doc.rect(ml+d0,y,d1,8);
-    doc.rect(ml+d0+d1,y,d2,8); doc.rect(ml+d0+d1+d2,y,d3,8);
+    doc.setLineWidth(0.6); doc.setDrawColor(0);
+    doc.line(ml,y,W-mr,y); y+=1;
     doc.setFont('times','bold'); doc.setFontSize(7);
-    doc.text('INSTITUI\u00c7\u00c3O DE ORIGEM',ml+d0/2,y+5,{align:'center'});
-    doc.text('DISCIPLINA CURSADA (CONFORME HIST\u00d3RICO)',ml+d0+d1/2,y+5,{align:'center'});
+    doc.text('INSTITUIÇÃO DE ORIGEM',ml+d0/2,y+5,{align:'center'});
+    doc.line(ml+d0,y,ml+d0,y+8);
+    doc.text('DISCIPLINA CURSADA (CONFORME HISTÓRICO)',ml+d0+d1/2,y+5,{align:'center'});
+    doc.line(ml+d0+d1,y,ml+d0+d1,y+8);
     doc.text('CH',ml+d0+d1+d2/2,y+5,{align:'center'});
+    doc.line(ml+d0+d1+d2,y,ml+d0+d1+d2,y+8);
     doc.text('COMPONENTE UFRN PRETENDIDA',ml+d0+d1+d2+d3/2,y+5,{align:'center'}); y+=8;
+    doc.setLineWidth(0.4); doc.line(ml,y,W-mr,y); y+=2;
 
     doc.setFont('times','normal'); doc.setFontSize(7.5);
     pedidoNovos.forEach(function(p,i){
-      if(i%2===0) doc.setFillColor(248,248,248); else doc.setFillColor(255,255,255);
-      doc.setLineWidth(0.2); doc.setDrawColor(150,150,150);
-      doc.setFontSize(7.5);
       var instL=doc.splitTextToSize(p.inst,d0-3);
       var cursLines=doc.splitTextToSize(p.disc,d1-4);
       var ufrLines=doc.splitTextToSize(p.comp_ufrn,d3-4);
       var lh2=4.5;
       var h=Math.max(instL.length,cursLines.length,ufrLines.length)*lh2+3;
-      doc.rect(ml,y,d0,h,'FD'); doc.rect(ml+d0,y,d1,h,'FD');
-      doc.rect(ml+d0+d1,y,d2,h,'FD'); doc.rect(ml+d0+d1+d2,y,d3,h,'FD');
-      doc.text(instL,ml+d0/2,y+h/2,{align:'center',baseline:'middle'});
+      doc.setDrawColor(0);
+      doc.text(instL,ml+d0/2,y+lh2,{align:'center'});
+      doc.line(ml+d0,y,ml+d0,y+h);
       doc.text(cursLines,ml+d0+2,y+lh2);
-      doc.text((p.ch?p.ch+'h':''),ml+d0+d1+d2/2,y+h/2,{align:'center',baseline:'middle'});
+      doc.line(ml+d0+d1,y,ml+d0+d1,y+h);
+      doc.text((p.ch?p.ch+'h':''),ml+d0+d1+d2/2,y+lh2,{align:'center'});
+      doc.line(ml+d0+d1+d2,y,ml+d0+d1+d2,y+h);
       doc.text(ufrLines,ml+d0+d1+d2+2,y+lh2);
       y+=h;
+      doc.setLineWidth(0.2); doc.setDrawColor(180,180,180);
+      doc.line(ml,y,W-mr,y);
     });
-    y+=8;
+    doc.setLineWidth(0.6); doc.setDrawColor(0);
+    doc.line(ml,y,W-mr,y); y+=8;
   }
 
   // Observa\u00e7\u00f5es
