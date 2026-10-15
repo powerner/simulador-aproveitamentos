@@ -163,6 +163,24 @@ input:focus,select:focus{outline:none;border-color:#2c4a58;background:#fff}
 .aviso-txt{font-size:.85rem;color:#666;font-style:italic;margin:6px 0}
 hr.div{border:none;border-top:1px solid #eee;margin:12px 0}
 .btn-novo-pedido{margin-top:10px;width:100%;padding:9px;border:2px dashed #5c7a8a;background:#fff;color:#2c4a58;border-radius:8px;font-size:.85rem;cursor:pointer;font-weight:600}
+
+/* Pedido com pássaro ao fundo */
+.ninho{position:relative;min-height:420px;border-radius:12px;background:linear-gradient(180deg,#f4f8fa,#e9f0f3);overflow:hidden;padding:18px}
+.ninho .passaro{position:absolute;left:50%;top:50%;width:min(100%,760px);height:auto;transform:translate(-50%,-50%);opacity:.35;pointer-events:none;transition:opacity .4s}
+.ninho.cheio .passaro{opacity:.4}
+.ninho-conteudo{position:relative;z-index:1}
+.ninho-grupo{margin-bottom:14px}
+.ninho-grupo.vazio{display:none}
+.ninho-titulo{font-size:11.5px;font-weight:700;color:#2c4a58;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.ninho-vazio{position:absolute;inset:auto 0 22px 0;text-align:center;font-size:.9rem;color:#2c4a58;font-style:italic;z-index:1}
+.ninho.cheio .ninho-vazio{display:none}
+.ninho-contagem{font-size:.78rem;color:#555;font-weight:400;margin-left:6px}
+.ninho .pedido-card{background:rgba(212,237,218,.72);box-shadow:0 2px 8px rgba(44,74,88,.12);-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
+.ninho .pedido-card.novo-caso{background:rgba(232,244,255,.75)}
+.pedido-card.chegou{animation:pousar .45s ease-out}
+@keyframes pousar{from{opacity:0;transform:translateY(-14px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pedido-card.chegou{animation:none}}
+@media(max-width:500px){.ninho{min-height:340px;padding:12px}}
 </style>
 </head>
 <body>
@@ -211,10 +229,6 @@ hr.div{border:none;border-top:1px solid #eee;margin:12px 0}
 
     <div id="resultado"></div>
 
-    <div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px">
-      <div style="font-size:12px;font-weight:700;color:#2c4a58;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Componentes selecionadas</div>
-      <div id="lista-precedente"><p class="pedido-vazio">Nenhuma componente adicionada.</p></div>
-    </div>
   </div>
 
   <!-- Bloco 3: Novos casos -->
@@ -297,7 +311,50 @@ hr.div{border:none;border-top:1px solid #eee;margin:12px 0}
       <button class="btn-add" onclick="adicionarNovoCaso()">+ Adicionar ao requerimento</button>
     </div>
 
-    <div id="lista-novos"><p class="pedido-vazio">Nenhum caso adicionado.</p></div>
+  </div>
+
+  <!-- Pedido: pássaro ao fundo -->
+  <div class="section">
+    <h2>Seu pedido<span class="ninho-contagem" id="ninho-contagem"></span></h2>
+    <div class="ninho" id="ninho">
+      <svg class="passaro" viewBox="0 0 600 420" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+  <!-- asa de trás -->
+  <polygon points="300,228 150,70 205,80 258,118 352,205" fill="#9fb6c2"/>
+  <polygon points="258,118 205,80 232,128" fill="#b9cbd4"/>
+  <!-- cauda -->
+  <polygon points="236,262 96,338 132,300 70,298 224,248" fill="#6b8898"/>
+  <polygon points="132,300 70,298 112,312" fill="#86a0ad"/>
+  <!-- corpo -->
+  <polygon points="300,226 412,182 470,160 492,196 420,242 300,272 226,268" fill="#5c7a8a"/>
+  <polygon points="300,226 412,182 420,242 300,272" fill="#4d6b7b"/>
+  <polygon points="420,242 492,196 456,232" fill="#3f5b6a"/>
+  <!-- peito claro -->
+  <polygon points="300,272 420,242 456,232 400,276 320,288" fill="#cfdde4"/>
+  <!-- cabeça -->
+  <polygon points="452,150 486,138 512,160 500,192 470,160" fill="#2c4a58"/>
+  <polygon points="470,160 500,192 492,196" fill="#3a5b6b"/>
+  <!-- bico -->
+  <polygon points="508,156 552,170 504,180" fill="#c8a84b"/>
+  <!-- olho -->
+  <circle cx="490" cy="160" r="5" fill="#f5f6f7"/>
+  <!-- asa da frente -->
+  <polygon points="332,214 262,36 330,74 398,150 424,196" fill="#7f9aa8"/>
+  <polygon points="262,36 330,74 300,92" fill="#a9bec8"/>
+  <polygon points="330,74 398,150 352,140" fill="#94adb9"/>
+  <polygon points="352,140 398,150 424,196 332,214" fill="#6b8898"/>
+</svg>
+      <div class="ninho-conteudo">
+        <div class="ninho-grupo vazio" id="grupo-precedente">
+          <div class="ninho-titulo">I. Com base em precedente</div>
+          <div id="lista-precedente"></div>
+        </div>
+        <div class="ninho-grupo vazio" id="grupo-novos">
+          <div class="ninho-titulo">II. Apreciação de equivalência</div>
+          <div id="lista-novos"></div>
+        </div>
+      </div>
+      <p class="ninho-vazio">As componentes escolhidas nos blocos I e II aparecerão aqui.</p>
+    </div>
   </div>
 
   <!-- Bloco 4: Urgência -->
@@ -506,10 +563,11 @@ function removerPrecedente(idx){
 
 function renderPrecedente(){
   var el=document.getElementById('lista-precedente');
-  if(!pedidoPrecedente.length){ el.innerHTML='<p class="pedido-vazio">Nenhuma componente adicionada.</p>'; return; }
+  var chegou=pedidoPrecedente.length>qtdPrecedente; qtdPrecedente=pedidoPrecedente.length;
+  if(!pedidoPrecedente.length){ el.innerHTML=''; atualizarNinho(); return; }
   var html='<div class="pedido-cards">';
   pedidoPrecedente.forEach(function(p,i){
-    html+='<div class="pedido-card">'
+    html+='<div class="pedido-card'+(chegou&&i===pedidoPrecedente.length-1?' chegou':'')+'">'
          +'<div class="pedido-card-info">'
          +'<div class="pedido-card-comp">'+hE(p.comp_ufrn)+'</div>'
          +'<div class="pedido-card-sub">'+hE(p.inst)+' — '+hE(p.label)+'</div>'
@@ -522,6 +580,7 @@ function renderPrecedente(){
   el.querySelectorAll('.pedido-card-btn').forEach(function(btn){
     btn.addEventListener('click',function(){ removerPrecedente(parseInt(btn.dataset.idx,10)); });
   });
+  atualizarNinho();
 }
 
 
@@ -542,10 +601,11 @@ function removerNovo(idx){ pedidoNovos.splice(idx,1); renderNovos(); }
 
 function renderNovos(){
   var el=document.getElementById('lista-novos');
-  if(!pedidoNovos.length){ el.innerHTML='<p class="pedido-vazio">Nenhum caso adicionado.</p>'; return; }
+  var chegou=pedidoNovos.length>qtdNovos; qtdNovos=pedidoNovos.length;
+  if(!pedidoNovos.length){ el.innerHTML=''; atualizarNinho(); return; }
   var html='<div class="pedido-cards">';
   pedidoNovos.forEach(function(p,i){
-    html+='<div class="pedido-card" style="background:#e8f4ff;border-color:#5c7a8a">'
+    html+='<div class="pedido-card novo-caso'+(chegou&&i===pedidoNovos.length-1?' chegou':'')+'" style="border-color:#5c7a8a">'
          +'<div class="pedido-card-info">'
          +'<div class="pedido-card-comp" style="color:#2c4a58">'+hE(p.comp_ufrn)+'</div>'
          +'<div class="pedido-card-sub" style="color:#3a6278">'+hE(p.inst)+(p.ch?' — '+hE(p.ch)+'h':'')+' — '+hE(p.disc)+'</div>'
@@ -558,6 +618,16 @@ function renderNovos(){
   el.querySelectorAll('.pedido-card-btn').forEach(function(btn){
     btn.addEventListener('click',function(){ removerNovo(parseInt(btn.dataset.idx,10)); });
   });
+  atualizarNinho();
+}
+
+var qtdPrecedente=0, qtdNovos=0;
+function atualizarNinho(){
+  var nP=pedidoPrecedente.length, nN=pedidoNovos.length, tot=nP+nN;
+  document.getElementById('grupo-precedente').className='ninho-grupo'+(nP?'':' vazio');
+  document.getElementById('grupo-novos').className='ninho-grupo'+(nN?'':' vazio');
+  document.getElementById('ninho').className='ninho'+(tot?' cheio':'');
+  document.getElementById('ninho-contagem').textContent=tot?('('+tot+(tot===1?' componente':' componentes')+')'):'';
 }
 
 function toggleUrgencia(){
