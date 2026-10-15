@@ -21,7 +21,7 @@ body{font-family: 'Lato', 'Segoe UI', Arial, sans-serif;background:#f5f6f7;color
 .col-pedido .ninho{background:transparent;border-radius:0;overflow:visible}
 .col-pedido .ninho .passaro{opacity:.45}
 .col-pedido .ninho.cheio .passaro{opacity:.5}
-@media(max-width:900px){.layout{grid-template-columns:1fr}.col-pedido{position:static}.col-pedido .section{height:auto;min-height:0;margin-bottom:14px}.col-pedido .ninho{min-height:420px;padding:12px}.col-pedido .ninho-conteudo{position:relative;inset:auto;overflow:visible;padding:0}}
+@media(max-width:900px){.layout{display:flex;flex-direction:column;gap:0}.col-form{display:contents}.col-form>*{order:1}.col-pedido{order:2;width:100%}.col-form>.bloco-urgencia{order:3}.col-form>.btn-pdf{order:4}.layout{grid-template-columns:1fr}.col-pedido{position:static}.col-pedido .section{height:auto;min-height:0;margin-bottom:14px}.col-pedido .ninho{min-height:420px;padding:12px}.col-pedido .ninho-conteudo{position:relative;inset:auto;overflow:visible;padding:0}}
 .header{background:linear-gradient(135deg,#6b8898,#5c7a8a);color:#fff;border-radius:12px;padding:18px 22px;margin-bottom:18px}
 .header h1{font-size:1.2rem;font-weight:700}
 .header p{font-size:.85rem;opacity:1;margin-top:3px}
@@ -326,7 +326,7 @@ hr.div{border:none;border-top:1px solid #eee;margin:12px 0}
   </div>
 
   <!-- Bloco 4: Urgência -->
-  <div class="section">
+  <div class="section bloco-urgencia">
     <h2>Urgência</h2>
     <label class="urgencia-check">
       <input type="checkbox" id="chk-urgencia" onchange="toggleUrgencia()">
