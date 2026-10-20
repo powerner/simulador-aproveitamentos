@@ -17,34 +17,66 @@ TEMPLATE = 'index.html'
 SAIDA = 'index.html'
 
 # ── Lê a planilha ──────────────────────────────────────────────────────────
-# Colunas (aba "Aproveitamentos Normalizados"):
-#   A ID Opção | B Componente UFRN | C Tipo de Oferta | D Instituição de Origem |
-#   E Nº Opção na Célula | F Componente Cursado | G Requer Conjunto (E) | H PARECER
+# Aba "Aproveitamentos Normalizados" — colunas lidas pelo nome do cabeçalho:
+#   ID Opção | Componente UFRN | Instituição de Origem | Nº Opção na Célula |
+#   Componente Cursado | Requer Conjunto (E) | PARECER
+# Aba "Componentes" — Componente UFRN | Tipo de Oferta
 # Linhas com o mesmo ID Opção formam um conjunto (E): uma linha por componente cursado.
 ABA = 'Aproveitamentos Normalizados'
+ABA_COMP = 'Componentes'
+COLUNAS = {
+    'id_opcao':        'ID Opção',
+    'comp_ufrn':       'Componente UFRN',
+    'instituicao':     'Instituição de Origem',
+    'num_opcao':       'Nº Opção na Célula',
+    'componente':      'Componente Cursado',
+    'requer_conjunto': 'Requer Conjunto (E)',
+    'resultado':       'PARECER',
+}
 
 def txt(v):
-    return str(v).strip() if v is not None else ''
+    return str(v).replace('\xa0', ' ').strip() if v is not None else ''
+
+def chave(s):
+    return ' '.join(txt(s).lower().split())
 
 def ler_planilha(path):
     wb = openpyxl.load_workbook(path, read_only=True)
     ws = wb[ABA] if ABA in wb.sheetnames else wb.worksheets[0]
     rows = list(ws.iter_rows(values_only=True))
+    cab = {chave(c): i for i, c in enumerate(rows[0]) if c is not None}
+    faltando = [n for n in COLUNAS.values() if chave(n) not in cab]
+    if faltando:
+        print('Erro: colunas não encontradas na planilha:', ', '.join(faltando)); sys.exit(1)
+    col = {k: cab[chave(n)] for k, n in COLUNAS.items()}
+
+    tipos = {}
+    if ABA_COMP in wb.sheetnames:
+        for r in list(wb[ABA_COMP].iter_rows(values_only=True))[1:]:
+            if r and txt(r[0]):
+                tipos[txt(r[0])] = txt(r[1] if len(r) > 1 else '').upper()
+    else:
+        print(f'  AVISO: aba "{ABA_COMP}" não encontrada; Tipo de Oferta ficará em branco.')
+
     dados = []
     for n, r in enumerate(rows[1:], start=2):
-        if r[0] is None or not txt(r[1]) or not txt(r[5]):
-            if any(x not in (None, '') for x in r[:8]):
+        v = lambda k: r[col[k]] if col[k] < len(r) else None
+        if v('id_opcao') in (None, '') or not txt(v('comp_ufrn')) or not txt(v('componente')):
+            if any(x not in (None, '') for x in r):
                 print(f'  AVISO: linha {n} ignorada (sem ID, componente UFRN ou componente cursado).')
             continue
+        comp = txt(v('comp_ufrn'))
+        if comp not in tipos:
+            print(f'  AVISO: linha {n}: "{comp}" não está na aba {ABA_COMP}.')
         dados.append({
-            'id_opcao':        int(r[0]),
-            'comp_ufrn':       txt(r[1]),
-            'tipo_oferta':     txt(r[2]).upper(),
-            'instituicao':     txt(r[3]),
-            'num_opcao':       int(r[4]) if r[4] else 1,
-            'componente':      txt(r[5]),
-            'requer_conjunto': txt(r[6]).lower() == 'sim',
-            'resultado':       txt(r[7]).upper() or 'DEFERIDO',
+            'id_opcao':        int(v('id_opcao')),
+            'comp_ufrn':       comp,
+            'tipo_oferta':     tipos.get(comp, ''),
+            'instituicao':     txt(v('instituicao')),
+            'num_opcao':       int(v('num_opcao')) if v('num_opcao') else 1,
+            'componente':      txt(v('componente')),
+            'requer_conjunto': txt(v('requer_conjunto')).lower() == 'sim',
+            'resultado':       txt(v('resultado')).upper() or 'DEFERIDO',
         })
     return dados
 
