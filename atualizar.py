@@ -33,6 +33,7 @@ COLUNAS = {
     'requer_conjunto': 'Requer Conjunto (E)',
     'resultado':       'PARECER',
 }
+COL_VALIDADO = 'Validado pela área?'   # opcional
 
 def txt(v):
     return str(v).replace('\xa0', ' ').strip() if v is not None else ''
@@ -49,6 +50,7 @@ def ler_planilha(path):
     if faltando:
         print('Erro: colunas não encontradas na planilha:', ', '.join(faltando)); sys.exit(1)
     col = {k: cab[chave(n)] for k, n in COLUNAS.items()}
+    col_val = cab.get(chave(COL_VALIDADO))
 
     tipos = {}
     if ABA_COMP in wb.sheetnames:
@@ -77,6 +79,7 @@ def ler_planilha(path):
             'componente':      txt(v('componente')),
             'requer_conjunto': txt(v('requer_conjunto')).lower() == 'sim',
             'resultado':       txt(v('resultado')).upper() or 'DEFERIDO',
+            'validado':        col_val is not None and col_val < len(r) and txt(r[col_val]).lower() == 'sim',
         })
     return dados
 
@@ -99,10 +102,14 @@ def normalizar(dados):
                 'componentes':     [],
                 'requer_conjunto': False,
                 'resultado':       r['resultado'],
+                'validado':        r['validado'],
             }
         elif op['resultado'] != r['resultado']:
             print(f'  AVISO: ID {iop} tem pareceres diferentes entre as linhas; usado INDEFERIDO.')
             op['resultado'] = 'INDEFERIDO'
+        if op['validado'] != r['validado'] and op['componentes']:
+            print(f'  AVISO: ID {iop} tem linhas validadas e não validadas; considerado não validado.')
+            op['validado'] = False
         op['componentes'].append(r['componente'])
         op['requer_conjunto'] = op['requer_conjunto'] or r['requer_conjunto'] or len(op['componentes']) > 1
 
