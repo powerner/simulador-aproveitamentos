@@ -156,7 +156,7 @@ input:focus,select:focus{outline:none;border-color:#2c4a58;background:#fff}
 .chk.indeferido{background:#e57373;border-color:#e57373;color:#fff}
 
 /* Status */
-.status-tag{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;margin-left:auto;color:#555}
+.status-tag{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:10px;white-space:normal;text-align:right;max-width:46%;margin-left:auto;color:#555}
 .status-tag.ok{background:#d4edda;color:#155724}
 .status-tag.indeferido{background:#fdecea;color:#b71c1c}
 
@@ -543,7 +543,7 @@ function renderResultado(){
           var bloqueadoFinal=bloqueado||indefConj;
           html+='<div class="conj-bloco'+(indefConj?' indeferido':bloqueado?' bloqueado':'')+'"><div class="conj-rotulo'+(indefConj?' indeferido':'')+'"><span>Necessário cursar as '+op.componentes.length+' disciplinas abaixo</span>';
           if(jaAdicionado) html+=' <span class="status-tag ok">Adicionado</span>';
-          else if(op.resultado==='INDEFERIDO') html+=' <span class="status-tag indeferido">Indeferido em processos anteriores</span>';
+          else if(op.resultado==='INDEFERIDO') html+=' <span class="status-tag indeferido">Não equivalente por não possuir pelo menos 75% do conteúdo</span>';
           else if(bloqueado) html+=' <span class="status-tag">Indisponível</span>';
           html+=pinVal(op)+'</div>';
           op.componentes.forEach(function(comp,ci){
@@ -560,7 +560,7 @@ function renderResultado(){
             '<div class="chk'+(jaAdicionado?' ok':indeferido?' indeferido':'')+'">'+(jaAdicionado?'&#x2713;':indeferido?'&#x2717;':'')+' </div> '+
             '<span>'+hE(comp)+'</span>'+
             (jaAdicionado?' <span class="status-tag ok">Adicionado</span>':'')+
-            (indeferido?' <span class="status-tag indeferido">Indeferido em processos anteriores</span>':bloqueado?' <span class="status-tag">Indisponível</span>':'')+
+            (indeferido?' <span class="status-tag indeferido">Não equivalente por não possuir pelo menos 75% do conteúdo</span>':bloqueado?' <span class="status-tag">Indisponível</span>':'')+
             pinVal(op)+'</div>';
         }
       });
