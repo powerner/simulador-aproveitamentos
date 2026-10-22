@@ -34,6 +34,8 @@ COLUNAS = {
     'resultado':       'PARECER',
 }
 COL_VALIDADO = 'Validado pela área?'   # opcional
+COL_EMENTA_UFRN = 'Ementa UFRN'                    # opcional
+COL_EMENTA_CURSADO = 'Ementa do Componente Cursado'  # opcional
 
 def txt(v):
     return str(v).replace('\xa0', ' ').strip() if v is not None else ''
@@ -51,6 +53,9 @@ def ler_planilha(path):
         print('Erro: colunas não encontradas na planilha:', ', '.join(faltando)); sys.exit(1)
     col = {k: cab[chave(n)] for k, n in COLUNAS.items()}
     col_val = cab.get(chave(COL_VALIDADO))
+    col_eu = cab.get(chave(COL_EMENTA_UFRN))
+    col_ec = cab.get(chave(COL_EMENTA_CURSADO))
+    opc = lambda r, j: txt(r[j]) if j is not None and j < len(r) else ''
 
     tipos = {}
     if ABA_COMP in wb.sheetnames:
@@ -80,6 +85,8 @@ def ler_planilha(path):
             'requer_conjunto': txt(v('requer_conjunto')).lower() == 'sim',
             'resultado':       txt(v('resultado')).upper() or 'DEFERIDO',
             'validado':        col_val is not None and col_val < len(r) and txt(r[col_val]).lower() == 'sim',
+            'ementa_ufrn':     opc(r, col_eu),
+            'ementa_cursado':  opc(r, col_ec),
         })
     return dados
 
@@ -103,6 +110,7 @@ def normalizar(dados):
                 'requer_conjunto': False,
                 'resultado':       r['resultado'],
                 'validado':        r['validado'],
+                'ementas':         [],
             }
         elif op['resultado'] != r['resultado']:
             print(f'  AVISO: ID {iop} tem pareceres diferentes entre as linhas; usado INDEFERIDO.')
@@ -111,11 +119,19 @@ def normalizar(dados):
             print(f'  AVISO: ID {iop} tem linhas validadas e não validadas; considerado não validado.')
             op['validado'] = False
         op['componentes'].append(r['componente'])
+        op['ementas'].append(r['ementa_cursado'])
         op['requer_conjunto'] = op['requer_conjunto'] or r['requer_conjunto'] or len(op['componentes']) > 1
+
+    ementas_ufrn = {}
+    for r in dados:
+        if r['ementa_ufrn']:
+            if r['comp_ufrn'] in ementas_ufrn and ementas_ufrn[r['comp_ufrn']] != r['ementa_ufrn']:
+                print(f"  AVISO: {r['comp_ufrn']} tem ementas UFRN diferentes; usada a primeira.")
+            ementas_ufrn.setdefault(r['comp_ufrn'], r['ementa_ufrn'])
 
     estrutura = {}
     for c in sorted(opcoes_map.keys()):
-        estrutura[c] = {'tipo_oferta': tipos.get(c, ''), 'instituicoes': {}}
+        estrutura[c] = {'tipo_oferta': tipos.get(c, ''), 'ementa': ementas_ufrn.get(c, ''), 'instituicoes': {}}
         for inst in sorted(opcoes_map[c].keys()):
             ops = sorted(opcoes_map[c][inst].values(), key=lambda x: (x['num_opcao'], x['id_opcao']))
             ops = [o for o in ops if o['resultado'] in ('DEFERIDO', 'INDEFERIDO')]
