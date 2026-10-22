@@ -923,7 +923,7 @@ function gerarRelatorioDocente(){
   doc.text('RELATÓRIO PARA AVALIAÇÃO DOCENTE — EQUIVALÊNCIA DE COMPONENTES',W/2,y,{align:'center'}); y+=5.5;
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(70,70,70);
   var hoje=new Date(); var dd=('0'+hoje.getDate()).slice(-2)+'/'+('0'+(hoje.getMonth()+1)).slice(-2)+'/'+hoje.getFullYear();
-  doc.text('Para cada linha, assinalar a confirmação do parecer registrado ou a proposta de revisão pelo NDE, com base na comparação das ementas. Gerado em '+dd+'.',W/2,y,{align:'center'});
+  doc.text('Para cada linha, assinalar a confirmação do parecer registrado ou a necessidade de informações complementares (como programa detalhado ou plano de ensino) para a análise. Gerado em '+dd+'.',W/2,y,{align:'center'});
   doc.setTextColor(0,0,0); y+=5;
   function ementaCursada(p){
     if(!p.ementas||!p.ementas.some(function(e){return e;})) return '—';
@@ -947,12 +947,12 @@ function gerarRelatorioDocente(){
     theme:'grid',
     styles:{font:'helvetica',fontSize:7,cellPadding:1.6,valign:'top',overflow:'linebreak',lineColor:[150,150,150],lineWidth:0.2},
     headStyles:{fillColor:[44,74,88],textColor:255,fontStyle:'bold',fontSize:7.2,valign:'middle'},
-    columnStyles:{0:{cellWidth:7,halign:'center'},1:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:59},3:{cellWidth:20},4:{cellWidth:32},5:{cellWidth:59},6:{cellWidth:22,fontStyle:'bold'},7:{cellWidth:33,minCellHeight:18}},
+    columnStyles:{0:{cellWidth:7,halign:'center'},1:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:59},3:{cellWidth:20},4:{cellWidth:32},5:{cellWidth:59},6:{cellWidth:22,fontStyle:'bold'},7:{cellWidth:33,minCellHeight:22}},
     didParseCell:function(d){ if(d.section==='body'&&d.column.index===6){ var t=String(d.cell.raw);
       d.cell.styles.textColor=t.indexOf('INDEFERIDO')===0?[170,30,30]:t.indexOf('DEFERIDO')===0?[20,110,50]:[60,60,60]; } },
     didDrawCell:function(d){ if(d.section==='body'&&d.column.index===7){
       var x=d.cell.x+2.2, yy=d.cell.y+4.2; doc.setFontSize(7); doc.setTextColor(0,0,0);
-      ['Confirmação do parecer','Proposta de revisão pelo NDE'].forEach(function(t){ var lin=doc.splitTextToSize(t,d.cell.width-7.5);
+      ['Confirmação do parecer','Necessidade de informações complementares para análise'].forEach(function(t){ var lin=doc.splitTextToSize(t,d.cell.width-7.5);
         doc.setDrawColor(60,60,60); doc.setLineWidth(0.25); doc.rect(x,yy-2.6,3,3); doc.text(lin,x+4.5,yy); yy+=lin.length*3+3.2; }); } }
   });
   var yf=doc.lastAutoTable.finalY+8;
