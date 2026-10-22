@@ -952,7 +952,7 @@ function gerarRelatorioDocente(){
       d.cell.styles.textColor=t.indexOf('INDEFERIDO')===0?[170,30,30]:t.indexOf('DEFERIDO')===0?[20,110,50]:[60,60,60]; } },
     didDrawCell:function(d){ if(d.section==='body'&&d.column.index===7){
       var x=d.cell.x+2.5, yy=d.cell.y+4;
-      [['Concordo',0],['Não concordo',6]].forEach(function(o){ doc.setDrawColor(60,60,60); doc.setLineWidth(0.25); doc.rect(x,yy+o[1]-2.6,3,3);
+      [['Concordo',0],['Pedir revisão',6]].forEach(function(o){ doc.setDrawColor(60,60,60); doc.setLineWidth(0.25); doc.rect(x,yy+o[1]-2.6,3,3);
         doc.setFontSize(7); doc.setTextColor(0,0,0); doc.text(o[0],x+4.5,yy+o[1]); }); } }
   });
   var yf=doc.lastAutoTable.finalY+8;
