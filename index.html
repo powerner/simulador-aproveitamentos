@@ -923,38 +923,37 @@ function gerarRelatorioDocente(){
   doc.text('RELATÓRIO PARA AVALIAÇÃO DOCENTE — EQUIVALÊNCIA DE COMPONENTES',W/2,y,{align:'center'}); y+=5.5;
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(70,70,70);
   var hoje=new Date(); var dd=('0'+hoje.getDate()).slice(-2)+'/'+('0'+(hoje.getMonth()+1)).slice(-2)+'/'+hoje.getFullYear();
-  var instr=doc.splitTextToSize('Para cada linha, assinalar a confirmação do parecer registrado, a necessidade de informações complementares (como programa detalhado ou plano de ensino) ou a submissão ao Departamento do Componente. Gerado em '+dd+'.',W-2*ml); doc.text(instr,W/2,y,{align:'center'});
+  var instr=doc.splitTextToSize('Para cada linha, assinalar a confirmação ou a discordância do parecer registrado, a necessidade de informações complementares (como programa detalhado ou plano de ensino) ou a submissão ao Departamento do Componente. Gerado em '+dd+'.',W-2*ml); doc.text(instr,W/2,y,{align:'center'});
   doc.setTextColor(0,0,0); y+=1+instr.length*3.6;
   function ementaCursada(p){
     if(!p.ementas||!p.ementas.some(function(e){return e;})) return '—';
     if(p.componentes.length===1) return p.ementas[0]||'—';
     return p.componentes.map(function(c,i){ return c.split(' - ')[0]+': '+(p.ementas[i]||'(sem ementa)'); }).join('\n\n');
   }
-  var OPCOES=['Confirmação do parecer','Necessidade de informações complementares para análise','Submissão ao Departamento do Componente'].join('\n\n');
   var corpo=[], n=0;
   pedidoPrecedente.forEach(function(p){ n++;
     var e=(DADOS[p.comp_ufrn]&&DADOS[p.comp_ufrn].ementa)||'—';
     var par=(p.resultado==='INDEFERIDO'?'INDEFERIDO\n(não equivalente)':'DEFERIDO')+(p.validado?'\nValidado pela área':'');
-    corpo.push([n,p.comp_ufrn,e,p.inst,p.componentes.join('\n+ '),ementaCursada(p),par,OPCOES]);
+    corpo.push([n,p.comp_ufrn,e,p.inst,p.componentes.join('\n+ '),ementaCursada(p),par,'','','','']);
   });
   pedidoNovos.forEach(function(p){ n++;
     var e=(DADOS[p.comp_ufrn]&&DADOS[p.comp_ufrn].ementa)||'—';
-    corpo.push([n,p.comp_ufrn,e,p.inst,p.disc+(p.ch?' ('+p.ch+'h)':''),'—','SEM PRECEDENTE\n(a avaliar)',OPCOES]);
+    corpo.push([n,p.comp_ufrn,e,p.inst,p.disc+(p.ch?' ('+p.ch+'h)':''),'—','SEM PRECEDENTE\n(a avaliar)','','','','']);
   });
   doc.autoTable({
     startY:y, margin:{left:ml,right:ml,bottom:14},
-    head:[['#','Componente UFRN','Ementa UFRN','Instituição de origem','Componente(s) cursado(s)','Ementa(s) do(s) componente(s) cursado(s)','Parecer registrado','Avaliação docente']],
+    head:[[{content:'#',rowSpan:2},{content:'Componente UFRN',rowSpan:2},{content:'Ementa UFRN',rowSpan:2},{content:'Instituição de origem',rowSpan:2},{content:'Componente(s) cursado(s)',rowSpan:2},{content:'Ementa(s) do(s) componente(s) cursado(s)',rowSpan:2},{content:'Parecer registrado',rowSpan:2},{content:'Avaliação docente',colSpan:4,styles:{halign:'center'}}],
+          [{content:'Confirmação do parecer'},{content:'Discordância do parecer'},{content:'Necessidade de informações complemen-\ntares'},{content:'Submissão ao Departamento do Componente'}]],
     body:corpo,
     theme:'grid', rowPageBreak:'avoid',
     styles:{font:'helvetica',fontSize:7,cellPadding:1.6,valign:'top',overflow:'linebreak',lineColor:[150,150,150],lineWidth:0.2},
     headStyles:{fillColor:[44,74,88],textColor:255,fontStyle:'bold',fontSize:7.2,valign:'middle'},
-    columnStyles:{0:{cellWidth:7,halign:'center'},1:{cellWidth:30,fontStyle:'bold'},2:{cellWidth:59},3:{cellWidth:20},4:{cellWidth:32},5:{cellWidth:59},6:{cellWidth:22,fontStyle:'bold'},7:{cellWidth:33,cellPadding:{top:2,right:1.5,bottom:2,left:6.8}}},
-    didParseCell:function(d){ if(d.section==='body'&&d.column.index===6){ var t=String(d.cell.raw);
-      d.cell.styles.textColor=t.indexOf('INDEFERIDO')===0?[170,30,30]:t.indexOf('DEFERIDO')===0?[20,110,50]:[60,60,60]; } },
-    didDrawCell:function(d){ if(d.section==='body'&&d.column.index===7){
-      var lh=d.cell.styles.fontSize*0.3528*1.15, top=d.cell.y+2, nova=true;
-      d.cell.text.forEach(function(t,i){ if(nova&&t.trim()){ doc.setDrawColor(60,60,60); doc.setLineWidth(0.25); doc.rect(d.cell.x+2,top+i*lh+0.15,3,3); nova=false; }
-        if(!t.trim()) nova=true; }); } }
+    columnStyles:{0:{cellWidth:7,halign:'center'},1:{cellWidth:27,fontStyle:'bold'},2:{cellWidth:46},3:{cellWidth:19},4:{cellWidth:28},5:{cellWidth:46},6:{cellWidth:21,fontStyle:'bold'},7:{cellWidth:17},8:{cellWidth:17},9:{cellWidth:17},10:{cellWidth:17}},
+    didParseCell:function(d){ if(d.section==='head'&&d.row.index===1){ d.cell.styles.fontSize=6.3; d.cell.styles.halign='center'; d.cell.styles.cellPadding=1; }
+      if(d.section==='body'&&d.column.index===6){ var t=String(d.cell.raw);
+        d.cell.styles.textColor=t.indexOf('INDEFERIDO')===0?[170,30,30]:t.indexOf('DEFERIDO')===0?[20,110,50]:[60,60,60]; } },
+    didDrawCell:function(d){ if(d.section==='body'&&d.column.index>=7){
+      doc.setDrawColor(60,60,60); doc.setLineWidth(0.3); doc.rect(d.cell.x+d.cell.width/2-2,d.cell.y+3,4,4); } }
   });
   var yf=doc.lastAutoTable.finalY+8;
   if(yf>210-40){ doc.addPage(); yf=20; }
