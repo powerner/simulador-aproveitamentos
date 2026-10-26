@@ -263,7 +263,7 @@ hr.div{border:none;border-top:1px solid #eee;margin:12px 0}
     </div>
 
     <div id="resultado"></div>
-    <p class="legenda-val" id="legenda-val"><svg viewBox="0 0 48 64" aria-hidden="true"><use href="#roseta"/></svg> Parecer validado pela área responsável pela componente.</p>
+    <p class="legenda-val" id="legenda-val"><svg viewBox="0 0 48 64" aria-hidden="true"><use href="#roseta"/></svg> Parecer validado pela Comissão do NDE (a referendar pelo Colegiado do Curso).</p>
 
   </div>
 
@@ -435,7 +435,7 @@ var conjSelecionados = {};
 var componentes = COMPS_LISTA.slice().sort();
 
 (function(){var tem=Object.values(DADOS).some(function(v){return Object.values(v.instituicoes).some(function(ops){return ops.some(function(o){return o.validado;});});});var el=document.getElementById('legenda-val');if(el&&!tem)el.className+=' oculta';})();
-function pinVal(op){ return op.validado?'<svg class="pin-val" viewBox="0 0 48 64" role="img" aria-label="Parecer validado pela área"><title>Parecer validado pela área</title><use href="#roseta"/></svg>':''; }
+function pinVal(op){ return op.validado?'<svg class="pin-val" viewBox="0 0 48 64" role="img" aria-label="Parecer validado pela Comissão do NDE"><title>Parecer validado pela Comissão do NDE</title><use href="#roseta"/></svg>':''; }
 function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function hE(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
