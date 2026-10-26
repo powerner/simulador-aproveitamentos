@@ -865,6 +865,22 @@ function gerarRelatorioDocente(){
   var hoje=new Date(); var dd=('0'+hoje.getDate()).slice(-2)+'/'+('0'+(hoje.getMonth()+1)).slice(-2)+'/'+hoje.getFullYear();
   var instr=doc.splitTextToSize('Para cada linha, assinalar a confirmação ou a discordância do parecer registrado, a necessidade de informações complementares (como programa detalhado ou plano de ensino) ou a submissão ao Departamento do Componente. Gerado em '+dd+'.',W-2*ml); doc.text(instr,W/2,y,{align:'center'});
   doc.setTextColor(0,0,0); y+=1+instr.length*3.6;
+  // Medalha (mesmo desenho do selo do site, viewBox 48x64), largura w mm, topo em (cx-w/2, y0)
+  function medalha(cx,y0,w){
+    var k=w/48, x0=cx-w/2;
+    function P(pts,cor){ var d=[]; for(var i=1;i<pts.length;i++) d.push([(pts[i][0]-pts[i-1][0])*k,(pts[i][1]-pts[i-1][1])*k]);
+      doc.setFillColor(cor[0],cor[1],cor[2]); doc.lines(d,x0+pts[0][0]*k,y0+pts[0][1]*k,[1,1],'F',true); }
+    P([[15,30],[9,62],[16,56],[21,63],[25,34]],[31,94,158]);
+    P([[33,30],[39,62],[32,56],[27,63],[23,34]],[44,116,189]);
+    doc.setFillColor(200,168,75); doc.circle(x0+24*k,y0+24*k,20*k,'F');
+    var st=[]; for(var i=0;i<24;i++){ var a=-Math.PI/2+i*Math.PI/12, r=(i%2?16.6:20); st.push([24+r*Math.cos(a),24+r*Math.sin(a)]); }
+    st.push(st[0]); P(st,[226,196,106]);
+    doc.setFillColor(31,94,158); doc.circle(x0+24*k,y0+24*k,12.5*k,'F');
+    doc.setDrawColor(226,196,106); doc.setLineWidth(1.2*k); doc.circle(x0+24*k,y0+24*k,10.5*k,'S');
+    doc.setDrawColor(255,255,255); doc.setLineWidth(2.8*k); doc.setLineCap('round'); doc.setLineJoin('round');
+    doc.lines([[3.6*k,3.6*k],[7.4*k,-7.6*k]],x0+18.6*k,y0+24.3*k,[1,1],'S',false);
+    doc.setLineCap('butt'); doc.setLineJoin('miter');
+  }
   function ementaCursada(p){
     if(!p.ementas||!p.ementas.some(function(e){return e;})) return '—';
     if(p.componentes.length===1) return p.ementas[0]||'—';
@@ -873,8 +889,11 @@ function gerarRelatorioDocente(){
   var corpo=[], n=0;
   pedidoPrecedente.forEach(function(p){ n++;
     var e=(DADOS[p.comp_ufrn]&&DADOS[p.comp_ufrn].ementa)||'—';
-    var par=(p.resultado==='INDEFERIDO'?'INDEFERIDO\n(não equivalente)':'DEFERIDO')+(p.validado?'\nValidado pela área':'');
-    corpo.push([n,p.comp_ufrn,e,p.inst,p.componentes.join('\n+ '),ementaCursada(p),par,'','','','']);
+    var par=(p.resultado==='INDEFERIDO'?'INDEFERIDO\n(não equivalente)':'DEFERIDO');
+    var lin=[n,p.comp_ufrn,e,p.inst,p.componentes.join('\n+ '),ementaCursada(p),par];
+    if(p.validado) lin.push({content:'',colSpan:4,validado:true,styles:{minCellHeight:12}});
+    else lin.push('','','','');
+    corpo.push(lin);
   });
   pedidoNovos.forEach(function(p){ n++;
     var e=(DADOS[p.comp_ufrn]&&DADOS[p.comp_ufrn].ementa)||'—';
@@ -892,8 +911,16 @@ function gerarRelatorioDocente(){
     didParseCell:function(d){ if(d.section==='head'&&d.row.index===1){ d.cell.styles.fontSize=6.3; d.cell.styles.halign='center'; d.cell.styles.cellPadding=1; }
       if(d.section==='body'&&d.column.index===6){ var t=String(d.cell.raw);
         d.cell.styles.textColor=t.indexOf('INDEFERIDO')===0?[170,30,30]:t.indexOf('DEFERIDO')===0?[20,110,50]:[60,60,60]; } },
-    didDrawCell:function(d){ if(d.section==='body'&&d.column.index>=7){
-      doc.setDrawColor(60,60,60); doc.setLineWidth(0.3); doc.rect(d.cell.x+d.cell.width/2-2,d.cell.y+3,4,4); } }
+    didDrawCell:function(d){ if(d.section!=='body'||d.column.index<7) return;
+      if(d.cell.raw&&d.cell.raw.validado){
+        var txt='VALIDADO POR COMISSÃO', mw=6.5, mh=mw*64/48;
+        doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+        var tw=doc.getTextWidth(txt), x0=d.cell.x+(d.cell.width-(mw+2.5+tw))/2, yc=d.cell.y+d.cell.height/2;
+        medalha(x0+mw/2,yc-mh/2,mw);
+        doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(31,94,158);
+        doc.text(txt,x0+mw+2.5,yc+1.2); doc.setTextColor(0,0,0);
+        return; }
+      doc.setDrawColor(60,60,60); doc.setLineWidth(0.3); doc.rect(d.cell.x+d.cell.width/2-2,d.cell.y+3,4,4); }
   });
   var yf=doc.lastAutoTable.finalY+8;
   if(yf>210-40){ doc.addPage(); yf=20; }
