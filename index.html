@@ -19,8 +19,8 @@ body{font-family: 'Lato', 'Segoe UI', Arial, sans-serif;background:#f7f1e6;color
 .col-pedido .ninho-conteudo{position:absolute;inset:0;overflow-y:auto;padding:18px}
 .col-pedido .section{background:transparent;box-shadow:none;padding:0 4px}
 .col-pedido .ninho{background:transparent;border-radius:0;overflow:visible}
-.col-pedido .ninho .passaro{opacity:.4;top:8px;transform:translateX(-50%)}
-.col-pedido .ninho.cheio .passaro{opacity:.4}
+.col-pedido .ninho .passaro{opacity:1;top:8px;transform:translateX(-50%)}
+.col-pedido .ninho.cheio .passaro{opacity:1}
 @media(max-width:900px){.layout{display:flex;flex-direction:column;gap:0}.col-form{display:contents}.col-form>*{order:1}.col-pedido{order:2;width:100%}.col-form>.bloco-urgencia{order:3}.col-form>.btn-pdf{order:4}.layout{grid-template-columns:1fr}.col-pedido{position:static}.col-pedido .section{height:auto;min-height:0;margin-bottom:14px}.col-pedido .ninho{min-height:420px;padding:12px}.col-pedido .ninho-conteudo{position:relative;inset:auto;overflow:visible;padding:0}}
 .header{background:linear-gradient(135deg,#6b8898,#5c7a8a);color:#fff;border-radius:12px;padding:18px 22px;margin-bottom:18px}
 .header h1{font-size:1.2rem;font-weight:700}
@@ -183,12 +183,12 @@ hr.div{border:none;border-top:1px solid #eee;margin:12px 0}
 .ninho-conteudo{position:relative;z-index:1}
 .ninho-grupo{margin-bottom:14px}
 .ninho-grupo.vazio{display:none}
-.ninho-titulo{font-size:11.5px;font-weight:700;color:#2c4a58;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.ninho-titulo{display:inline-block;background:#f7f1e6;padding:2px 7px;border-radius:4px;font-size:11.5px;font-weight:700;color:#2c4a58;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
 .ninho-vazio{position:absolute;inset:auto 0 22px 0;text-align:center;font-size:.9rem;color:#2c4a58;font-style:italic;z-index:1}
 .ninho.cheio .ninho-vazio{display:none}
 .ninho-contagem{font-size:.78rem;color:#555;font-weight:400;margin-left:6px}
-.ninho .pedido-card{background:rgba(212,237,218,.72);box-shadow:0 2px 8px rgba(44,74,88,.12);-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
-.ninho .pedido-card.novo-caso{background:rgba(232,244,255,.75)}
+.ninho .pedido-card{background:#d4edda;box-shadow:0 2px 8px rgba(44,74,88,.12)}
+.ninho .pedido-card.novo-caso{background:#e8f4ff}
 .pedido-card.chegou{animation:pousar .45s ease-out}
 @keyframes pousar{from{opacity:0;transform:translateY(-14px) scale(.97)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.pedido-card.chegou{animation:none}}
