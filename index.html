@@ -913,12 +913,13 @@ function gerarRelatorioDocente(){
         d.cell.styles.textColor=t.indexOf('INDEFERIDO')===0?[170,30,30]:t.indexOf('DEFERIDO')===0?[20,110,50]:[60,60,60]; } },
     didDrawCell:function(d){ if(d.section!=='body'||d.column.index<7) return;
       if(d.cell.raw&&d.cell.raw.validado){
-        var txt='VALIDADO POR COMISSÃO', mw=6.5, mh=mw*64/48;
-        doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+        var txt='VALIDADO PELA COMISSÃO DO NDE', sub='A referendar pelo Colegiado do Curso', mw=6.5, mh=mw*64/48;
+        doc.setFont('helvetica','bold'); doc.setFontSize(8.2);
         var tw=doc.getTextWidth(txt), x0=d.cell.x+(d.cell.width-(mw+2.5+tw))/2, yc=d.cell.y+d.cell.height/2;
         medalha(x0+mw/2,yc-mh/2,mw);
-        doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(31,94,158);
-        doc.text(txt,x0+mw+2.5,yc+1.2); doc.setTextColor(0,0,0);
+        doc.setTextColor(31,94,158); doc.text(txt,x0+mw+2.5,yc-0.4);
+        doc.setFont('helvetica','normal'); doc.setFontSize(6.8); doc.setTextColor(90,90,90);
+        doc.text(sub,x0+mw+2.5,yc+3.2); doc.setTextColor(0,0,0);
         return; }
       doc.setDrawColor(60,60,60); doc.setLineWidth(0.3); doc.rect(d.cell.x+d.cell.width/2-2,d.cell.y+3,4,4); }
   });
