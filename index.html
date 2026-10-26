@@ -10,7 +10,7 @@
 <style>
 
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family: 'Lato', 'Segoe UI', Arial, sans-serif;background:#f5f6f7;color:#1a1a1a;min-height:100vh}
+body{font-family: 'Lato', 'Segoe UI', Arial, sans-serif;background:#ecddbe;color:#1a1a1a;min-height:100vh}
 .container{max-width:1240px;margin:0 auto;padding:20px 14px 60px}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
 .col-pedido{position:sticky;top:14px}
@@ -19,8 +19,8 @@ body{font-family: 'Lato', 'Segoe UI', Arial, sans-serif;background:#f5f6f7;color
 .col-pedido .ninho-conteudo{position:absolute;inset:0;overflow-y:auto;padding:18px}
 .col-pedido .section{background:transparent;box-shadow:none;padding:0 4px}
 .col-pedido .ninho{background:transparent;border-radius:0;overflow:visible}
-.col-pedido .ninho .passaro{opacity:.45}
-.col-pedido .ninho.cheio .passaro{opacity:.5}
+.col-pedido .ninho .passaro{opacity:.4}
+.col-pedido .ninho.cheio .passaro{opacity:.4}
 @media(max-width:900px){.layout{display:flex;flex-direction:column;gap:0}.col-form{display:contents}.col-form>*{order:1}.col-pedido{order:2;width:100%}.col-form>.bloco-urgencia{order:3}.col-form>.btn-pdf{order:4}.layout{grid-template-columns:1fr}.col-pedido{position:static}.col-pedido .section{height:auto;min-height:0;margin-bottom:14px}.col-pedido .ninho{min-height:420px;padding:12px}.col-pedido .ninho-conteudo{position:relative;inset:auto;overflow:visible;padding:0}}
 .header{background:linear-gradient(135deg,#6b8898,#5c7a8a);color:#fff;border-radius:12px;padding:18px 22px;margin-bottom:18px}
 .header h1{font-size:1.2rem;font-weight:700}
@@ -397,32 +397,7 @@ hr.div{border:none;border-top:1px solid #eee;margin:12px 0}
   <div class="section">
     <h2>Seu pedido<span class="ninho-contagem" id="ninho-contagem"></span></h2>
     <div class="ninho" id="ninho">
-      <svg class="passaro" viewBox="0 0 600 420" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-  <!-- asa de trás -->
-  <polygon points="300,228 150,70 205,80 258,118 352,205" fill="#9fb6c2"/>
-  <polygon points="258,118 205,80 232,128" fill="#b9cbd4"/>
-  <!-- cauda -->
-  <polygon points="236,262 96,338 132,300 70,298 224,248" fill="#6b8898"/>
-  <polygon points="132,300 70,298 112,312" fill="#86a0ad"/>
-  <!-- corpo -->
-  <polygon points="300,226 412,182 470,160 492,196 420,242 300,272 226,268" fill="#5c7a8a"/>
-  <polygon points="300,226 412,182 420,242 300,272" fill="#4d6b7b"/>
-  <polygon points="420,242 492,196 456,232" fill="#3f5b6a"/>
-  <!-- peito claro -->
-  <polygon points="300,272 420,242 456,232 400,276 320,288" fill="#cfdde4"/>
-  <!-- cabeça -->
-  <polygon points="452,150 486,138 512,160 500,192 470,160" fill="#2c4a58"/>
-  <polygon points="470,160 500,192 492,196" fill="#3a5b6b"/>
-  <!-- bico -->
-  <polygon points="508,156 552,170 504,180" fill="#c8a84b"/>
-  <!-- olho -->
-  <circle cx="490" cy="160" r="5" fill="#f5f6f7"/>
-  <!-- asa da frente -->
-  <polygon points="332,214 262,36 330,74 398,150 424,196" fill="#7f9aa8"/>
-  <polygon points="262,36 330,74 300,92" fill="#a9bec8"/>
-  <polygon points="330,74 398,150 352,140" fill="#94adb9"/>
-  <polygon points="352,140 398,150 424,196 332,214" fill="#6b8898"/>
-</svg>
+      <img class="passaro" src="caranguejo.png" alt="" aria-hidden="true">
       <div class="ninho-conteudo">
         <div class="ninho-grupo vazio" id="grupo-precedente">
           <div class="ninho-titulo">I. Com base em precedente</div>
