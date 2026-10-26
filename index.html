@@ -263,7 +263,7 @@ hr.div{border:none;border-top:1px solid #eee;margin:12px 0}
     </div>
 
     <div id="resultado"></div>
-    <p class="legenda-val" id="legenda-val"><svg viewBox="0 0 48 64" aria-hidden="true"><use href="#roseta"/></svg> Parecer validado pela Comissão do NDE (a referendar pelo Colegiado do Curso).</p>
+    <p class="legenda-val" id="legenda-val"><svg viewBox="0 0 48 64" aria-hidden="true"><use href="#roseta"/></svg> Parecer validado por comissão (a referendar pelo Colegiado do Curso).</p>
 
   </div>
 
@@ -435,7 +435,7 @@ var conjSelecionados = {};
 var componentes = COMPS_LISTA.slice().sort();
 
 (function(){var tem=Object.values(DADOS).some(function(v){return Object.values(v.instituicoes).some(function(ops){return ops.some(function(o){return o.validado;});});});var el=document.getElementById('legenda-val');if(el&&!tem)el.className+=' oculta';})();
-function pinVal(op){ return op.validado?'<svg class="pin-val" viewBox="0 0 48 64" role="img" aria-label="Parecer validado pela Comissão do NDE"><title>Parecer validado pela Comissão do NDE</title><use href="#roseta"/></svg>':''; }
+function pinVal(op){ return op.validado?'<svg class="pin-val" viewBox="0 0 48 64" role="img" aria-label="Parecer validado por comissão"><title>Parecer validado por comissão</title><use href="#roseta"/></svg>':''; }
 function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function hE(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -913,7 +913,7 @@ function gerarRelatorioDocente(){
         d.cell.styles.textColor=t.indexOf('INDEFERIDO')===0?[170,30,30]:t.indexOf('DEFERIDO')===0?[20,110,50]:[60,60,60]; } },
     didDrawCell:function(d){ if(d.section!=='body'||d.column.index<7) return;
       if(d.cell.raw&&d.cell.raw.validado){
-        var txt='VALIDADO PELA COMISSÃO DO NDE', sub='A referendar pelo Colegiado do Curso', mw=6.5, mh=mw*64/48;
+        var txt='VALIDADO POR COMISSÃO', sub='A referendar pelo Colegiado do Curso', mw=6.5, mh=mw*64/48;
         doc.setFont('helvetica','bold'); doc.setFontSize(8.2);
         var tw=doc.getTextWidth(txt), x0=d.cell.x+(d.cell.width-(mw+2.5+tw))/2, yc=d.cell.y+d.cell.height/2;
         medalha(x0+mw/2,yc-mh/2,mw);
