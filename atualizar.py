@@ -34,6 +34,7 @@ COLUNAS = {
     'resultado':       'PARECER',
 }
 COL_VALIDADO = 'Validado pela área?'   # opcional
+COL_REFERENDADO = 'Referendado pelo Colegiado?'   # opcional
 COL_EMENTA_UFRN = 'Ementa UFRN'                    # opcional
 COL_EMENTA_CURSADO = 'Ementa do Componente Cursado'  # opcional
 
@@ -53,6 +54,7 @@ def ler_planilha(path):
         print('Erro: colunas não encontradas na planilha:', ', '.join(faltando)); sys.exit(1)
     col = {k: cab[chave(n)] for k, n in COLUNAS.items()}
     col_val = cab.get(chave(COL_VALIDADO))
+    col_ref = cab.get(chave(COL_REFERENDADO))
     col_eu = cab.get(chave(COL_EMENTA_UFRN))
     col_ec = cab.get(chave(COL_EMENTA_CURSADO))
     opc = lambda r, j: txt(r[j]) if j is not None and j < len(r) else ''
@@ -85,6 +87,7 @@ def ler_planilha(path):
             'requer_conjunto': txt(v('requer_conjunto')).lower() == 'sim',
             'resultado':       txt(v('resultado')).upper() or 'DEFERIDO',
             'validado':        col_val is not None and col_val < len(r) and txt(r[col_val]).lower() == 'sim',
+            'referendado':     col_ref is not None and col_ref < len(r) and txt(r[col_ref]).lower() == 'sim',
             'ementa_ufrn':     opc(r, col_eu),
             'ementa_cursado':  opc(r, col_ec),
         })
@@ -110,6 +113,7 @@ def normalizar(dados):
                 'requer_conjunto': False,
                 'resultado':       r['resultado'],
                 'validado':        r['validado'],
+                'referendado':     r['referendado'],
                 'ementas':         [],
             }
         elif op['resultado'] != r['resultado']:
@@ -118,6 +122,9 @@ def normalizar(dados):
         if op['validado'] != r['validado'] and op['componentes']:
             print(f'  AVISO: ID {iop} tem linhas validadas e não validadas; considerado não validado.')
             op['validado'] = False
+        if op['referendado'] != r['referendado'] and op['componentes']:
+            print(f'  AVISO: ID {iop} tem linhas referendadas e não referendadas; considerado não referendado.')
+            op['referendado'] = False
         op['componentes'].append(r['componente'])
         op['ementas'].append(r['ementa_cursado'])
         op['requer_conjunto'] = op['requer_conjunto'] or r['requer_conjunto'] or len(op['componentes']) > 1
