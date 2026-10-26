@@ -836,21 +836,6 @@ function gerarPDF(){
   doc.text('Assinatura do aluno',ml,y+4); doc.text(nome.toUpperCase(),ml,y+7.5);
   y+=11;
 
-  // ── Validação
-  var hV=35; precisa(hV+1);
-  doc.setFillColor(247,247,247); doc.setDrawColor(LINHA[0],LINHA[1],LINHA[2]); doc.setLineWidth(0.3);
-  doc.roundedRect(ml,y,cw,hV,1.5,1.5,'FD');
-  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); cor(TINTA);
-  doc.text('VALIDAÇÃO DO PEDIDO — uso exclusivo da Coordenação',ml+5,y+6.5);
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.2);
-  function caixa(x,yy,txt){ doc.setDrawColor(90,90,90); doc.setLineWidth(0.3); doc.rect(x,yy-3,3.4,3.4); doc.text(txt,x+5.5,yy); }
-  caixa(ml+5,y+13,'Aprovado pelo Colegiado do Curso — reunião de ____/____/________');
-  caixa(ml+5,y+19,'Aprovado ad referendum pela Coordenação do Curso, em ____/____/________');
-  caixa(ml+5,y+25,'Devolvido ao aluno para ajustes / indeferido (ver observações)');
-  doc.setDrawColor(90,90,90); doc.line(ml+98,y+29.5,ml+cw-6,y+29.5);
-  doc.setFontSize(7.2); cor(CINZA); doc.text('Coordenador(a) do Curso — assinatura e carimbo',ml+98,y+33);
-  y+=hV+4;
-
   // ── Rodapé
   var np=doc.internal.getNumberOfPages();
   for(var i=1;i<=np;i++){
